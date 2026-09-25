@@ -234,3 +234,10 @@ footer{background:#0d100d;color:#b9c0b5}
   .contact h2{font-size:30px;line-height:1.08}
   .contact p{font-size:11px;line-height:1.65}
 }
+.world-3d{position:absolute;inset:0;z-index:0;overflow:hidden;background:radial-gradient(ellipse at 48% 40%,#526449 0%,#344634 60%,#202d22 100%)}
+.world-3d canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none;outline:none}
+.world-3d canvas:active{cursor:grabbing}
+.world-label-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
+.world-label-layer .map-pin{pointer-events:auto;transform:translate(-50%,-50%)}
+.world-loading,.world-error{position:absolute;inset:auto 12px 15px;z-index:2;color:#f1f3e9;font-size:10px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 8px #000;pointer-events:none}
+.world-error{inset:50% 18px auto;transform:translateY(-50%);padding:16px;background:#111511e8;text-align:center;font-size:12px;line-height:1.6;pointer-events:auto}
