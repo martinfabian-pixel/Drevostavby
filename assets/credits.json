@@ -1,0 +1,279 @@
+{
+  "license": "CC0-1.0",
+  "licenseSource": "https://polyhaven.com/license",
+  "assetDetails": "LICENSES.md",
+  "files": [
+    {
+      "file": "bark-color.jpg",
+      "bytes": 362460,
+      "sha256": "0d0d283573bb1d3b31ccaaa8f18f7f5fec305d595893d352eb4c0db0bb9222a4"
+    },
+    {
+      "file": "bark-height.jpg",
+      "bytes": 165971,
+      "sha256": "522adae8d8d2c12b90095172bb24f6b360963a51c6b37393bdf24cdf8dfb78d4"
+    },
+    {
+      "file": "bark-normal.jpg",
+      "bytes": 501251,
+      "sha256": "74635470c9fabf4a4735e07b0ce1cc4d470c466ad29536e4297c68d8b029f496"
+    },
+    {
+      "file": "bark-roughness.jpg",
+      "bytes": 175108,
+      "sha256": "90c019b1cdd8d3edff70d117438aa88d04787d80d43674d6e8bdd70e648d9d6a"
+    },
+    {
+      "file": "fern-alpha.png",
+      "bytes": 114589,
+      "sha256": "ea3c64284c7ebdeedf484d2d816eae92825ec526140c3bb83859ddc7a64001f9"
+    },
+    {
+      "file": "fern-normal.jpg",
+      "bytes": 206767,
+      "sha256": "b9752ddc995f23510aaa8cda9cb5f97a6cbe6835bfe39e2852d416933c104b84"
+    },
+    {
+      "file": "fern-photo.png",
+      "bytes": 688950,
+      "sha256": "8b0bfa488a8e3de94652797ca81d749077792344fd77cccec7e9c3cc548626c0"
+    },
+    {
+      "file": "fir-alpha.png",
+      "bytes": 371026,
+      "sha256": "3f399629337e7ac3af27a01b08ffb9c0d60224a9dd374a1427761a5c2eea9d6e"
+    },
+    {
+      "file": "fir-normal.jpg",
+      "bytes": 305913,
+      "sha256": "025fd44e0203da1dee0dafce149908b552bd5a31723656aa98aede2d9e0b23a2"
+    },
+    {
+      "file": "fir-photo.png",
+      "bytes": 1007526,
+      "sha256": "d3408dac9f0fd8119774dec144930f132cfa0b2f48136c526ca5595a4badc85a"
+    },
+    {
+      "file": "grass-photo.png",
+      "bytes": 990236,
+      "sha256": "06ef10b91f30d101ac00a441a86dfc2a82b6d8b5692fdc529c1d41a3ad601d86"
+    },
+    {
+      "file": "morning-sky.hdr",
+      "bytes": 524405,
+      "sha256": "548bd66386fc8168536a20b66516958239a53e50de2a9386ded1b36ec84cba4a"
+    },
+    {
+      "file": "moss-color.jpg",
+      "bytes": 119522,
+      "sha256": "7e556fa3457cea219ef380283b3baf3aa77a6c2341af8abebc89bc5d84b1b1a4"
+    },
+    {
+      "file": "moss-normal.jpg",
+      "bytes": 743,
+      "sha256": "4f89c095a717bf1ddf72679a9fe36c0efc97fa83b3b8ba5012c7c9898a2fca26"
+    },
+    {
+      "file": "moss-roughness.jpg",
+      "bytes": 274792,
+      "sha256": "dcaca244c07f10c0fd5772712cf850e378e52eef6a747004479ac63d25536a97"
+    },
+    {
+      "file": "rock-color.webp",
+      "bytes": 197412,
+      "sha256": "d426d2aa025f82bbb632566c20afec53c7d942a542daa0a7f78edaa886794ccc"
+    },
+    {
+      "file": "rock-normal.webp",
+      "bytes": 93886,
+      "sha256": "1d403195ad60f9c8eaea2b10c4f7d043b40fcf865288b982d0c9e0c5b6eea32b"
+    },
+    {
+      "file": "rock-roughness.webp",
+      "bytes": 144486,
+      "sha256": "6f82790f04867aee25ba86b30ce5609e83cf417961fe9fe1df8226547d640790"
+    },
+    {
+      "file": "soil-color.jpg",
+      "bytes": 649872,
+      "sha256": "9a86e722b2d41e83317e8e78ecffae2c5519d7abb4ce16e75b4ba8d95c90eb5e"
+    },
+    {
+      "file": "soil-height.jpg",
+      "bytes": 247731,
+      "sha256": "dc28a738e866ba06d23f5601270fbcf753a4295b15374ef70977ef2e088ded76"
+    },
+    {
+      "file": "soil-normal.jpg",
+      "bytes": 608913,
+      "sha256": "f4ebbdd0d09a2dcb8cdcc52d7d7cedddbe335f12a97d139d0d9014f4a1c85399"
+    },
+    {
+      "file": "soil-roughness.jpg",
+      "bytes": 193872,
+      "sha256": "d21979f42f77f8d276dd62c3839405352cce12a9fb233d08ab4e026c0f3dc451"
+    },
+    {
+      "file": "spruit-sunrise-2k.jpg",
+      "bytes": 470493,
+      "sha256": "867a853b9076fd7e6a6e0f38ca5f613ff6bbc672191720bf24af828e6384b62d"
+    },
+    {
+      "file": "wood-color.jpg",
+      "bytes": 197867,
+      "sha256": "1db40c5d3b7a349ca26c6c908617e068dfd806c9f9937f580f2ff33c66b3f0f2"
+    },
+    {
+      "file": "wood-grain-color.jpg",
+      "bytes": 13143,
+      "sha256": "e128881ab996ee18ddfbddff6ba82066ec3c0da21a4de7ff9e5c4f7cfb986a6b"
+    },
+    {
+      "file": "wood-grain-normal.jpg",
+      "bytes": 14081,
+      "sha256": "68ce6dc7beb4ee64c60b768ac532e7cf17f1cda51dc0568ccd268c61c58c1a2a"
+    },
+    {
+      "file": "wood-grain-roughness.jpg",
+      "bytes": 5307,
+      "sha256": "a2b20eb8d8707208ad0a5275742d030a2706aca986ac8eb306cd9789ddac1f3f"
+    },
+    {
+      "file": "wood-normal.jpg",
+      "bytes": 337148,
+      "sha256": "498841776a718798d0c4ad044b3cb7bffcfedb1e100459b19ab17faa6322bb58"
+    },
+    {
+      "file": "wood-roughness.jpg",
+      "bytes": 67776,
+      "sha256": "4ff78285f271cccb07c1d11d5cc80778dc8936ee4e6f00acc4f79a0263a9aff2"
+    }
+  ],
+  "sources": [
+    {
+      "group": "soil",
+      "asset": "forrest_ground_01",
+      "source": "https://polyhaven.com/a/forrest_ground_01",
+      "license": "CC0-1.0",
+      "creator": "Rob Tuytel",
+      "mirrorFiles": [
+        "https://github.com/hen31/TankDestroyer/blob/master/Game/forrest_ground_01_diff_1k.jpg",
+        "https://github.com/TaladeogoA/haunted-house/blob/main/static/floor/forrest_ground_01_1k/forrest_ground_01_disp_1k.jpg",
+        "https://github.com/marvinrunge/mtg-pentagon-tower-defense/blob/master/assets/textures/forest/textures/forrest_ground_01_rough_1k.jpg"
+      ],
+      "processing": "Recompressed JPGs. Normal from original displacement."
+    },
+    {
+      "group": "wood",
+      "asset": "wooden_planks",
+      "source": "https://polyhaven.com/a/wooden_planks",
+      "license": "CC0-1.0",
+      "creator": "Charlotte Baglioni; Dario Barresi",
+      "mirrorFiles": [
+        "https://github.com/FloppyPancakeMedia/FPSTest/blob/main/Textures/wooden_planks_diff_1k.jpg",
+        "https://github.com/FloppyPancakeMedia/FPSTest/blob/main/Textures/wooden_planks_nor_gl_1k.jpg",
+        "https://github.com/FloppyPancakeMedia/FPSTest/blob/main/Textures/wooden_planks_rough_1k.jpg"
+      ],
+      "processing": "Recompressed JPGs; crop [0,83,1024,128] to1024x64 for oneplank."
+    },
+    {
+      "group": "bark",
+      "asset": "pine_bark",
+      "source": "https://polyhaven.com/a/pine_bark",
+      "license": "CC0-1.0",
+      "creator": "Dimitrios Savva",
+      "mirrorFiles": [
+        "https://github.com/hwcgames/snald/blob/main/textures/pine_bark_1k/textures/pine_bark_diff_1k.jpg",
+        "https://github.com/hwcgames/snald/blob/main/textures/pine_bark_1k/textures/pine_bark_rough_1k.jpg",
+        "https://github.com/hwcgames/snald/blob/main/textures/pine_bark_1k/textures/pine_bark_disp_1k.jpg"
+      ],
+      "processing": "Recompressed JPGs. Normal from original displacement."
+    },
+    {
+      "group": "moss",
+      "asset": "aerial_grass_rock",
+      "source": "https://polyhaven.com/a/aerial_grass_rock",
+      "license": "CC0-1.0",
+      "creator": "Rob Tuytel",
+      "mirrorFiles": [
+        "https://github.com/hen31/TankDestroyer/blob/master/Game/aerial_grass_rock_diff_1k.jpg",
+        "https://github.com/blackears/terrain_layered_shader/blob/master/godot/art/textures/aerial_grass_rock_1k.blend/textures/aerial_grass_rock_rough_1k.jpg"
+      ],
+      "processing": "Color and roughness photographed. Neutral normal placeholder, original generated material data."
+    },
+    {
+      "group": "rock",
+      "asset": "rock_boulder_dry",
+      "source": "https://polyhaven.com/a/rock_boulder_dry",
+      "license": "CC0-1.0",
+      "creator": "Dimitrios Savva; Rico Cilliers",
+      "mirrorFiles": [
+        "https://github.com/danielesteban/unsatisfactory/blob/main/src/textures/rock_boulder_dry_diff_1k.webp",
+        "https://github.com/danielesteban/unsatisfactory/blob/main/src/textures/rock_boulder_dry_nor_gl_1k.webp",
+        "https://github.com/danielesteban/unsatisfactory/blob/main/src/textures/rock_boulder_dry_rough_1k.webp"
+      ],
+      "processing": "Mirror WebP versions."
+    },
+    {
+      "group": "fir",
+      "asset": "fir_tree_01",
+      "source": "https://polyhaven.com/a/fir_tree_01",
+      "license": "CC0-1.0",
+      "creator": "Rob Tuytel; Rico Cilliers",
+      "mirrorFiles": [
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/fir_twig_packed.png",
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/polyhaven/fir_twig/fir_twig_alpha_1k.png",
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/polyhaven/fir_twig/fir_twig_nor_gl_1k.jpg"
+      ],
+      "provenance": "https://github.com/kkellerman/bastion-front/blob/master/ASSET_ATTRIBUTION.md",
+      "processing": "Photo diffuse and alpha packed into RGBA by mirror."
+    },
+    {
+      "group": "fern",
+      "asset": "fern_02",
+      "source": "https://polyhaven.com/a/fern_02",
+      "license": "CC0-1.0",
+      "creator": "Rob Tuytel; Rico Cilliers",
+      "mirrorFiles": [
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/fern_packed.png",
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/polyhaven/ground_plants/fern_alpha_1k.png",
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/polyhaven/ground_plants/fern_nor_gl_1k.jpg"
+      ],
+      "provenance": "https://github.com/kkellerman/bastion-front/blob/master/ASSET_ATTRIBUTION.md",
+      "processing": "Photo diffuse and alpha packed into RGBA by mirror."
+    },
+    {
+      "group": "grass",
+      "asset": "grass_medium_01",
+      "source": "https://polyhaven.com/a/grass_medium_01",
+      "license": "CC0-1.0",
+      "creator": "Rob Tuytel; Rico Cilliers",
+      "mirrorFiles": [
+        "https://github.com/kkellerman/bastion-front/blob/master/assets/textures/grass_packed.png"
+      ],
+      "provenance": "https://github.com/kkellerman/bastion-front/blob/master/ASSET_ATTRIBUTION.md"
+    },
+    {
+      "group": "environment",
+      "asset": "spruit_sunrise",
+      "source": "https://polyhaven.com/a/spruit_sunrise",
+      "license": "CC0-1.0",
+      "creator": "Greg Zaal",
+      "mirrorFiles": [
+        "https://github.com/mrdoob/three.js/blob/r186/examples/textures/equirectangular/spruit_sunrise_2k.hdr.jpg"
+      ],
+      "processing": "Reconstructed 512x256 linear RGBE from the SDR photograph, sRGB decoded to linear and multiplied by 1.2; synthetic warm Gaussian sun peak 20 at direction (-45,45,38), matched to the scene directional sun. Not calibrated captured HDR."
+    },
+    {
+      "group": "spare-environment",
+      "asset": "spruit_sunrise",
+      "source": "https://polyhaven.com/a/spruit_sunrise",
+      "license": "CC0-1.0",
+      "creator": "Greg Zaal",
+      "mirrorFiles": [
+        "https://github.com/mrdoob/three.js/blob/r186/examples/textures/equirectangular/spruit_sunrise_2k.hdr.jpg"
+      ],
+      "processing": "Original SDR panorama used to derive the runtime reconstructed RGBE environment."
+    }
+  ]
+}

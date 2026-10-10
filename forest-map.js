@@ -1,548 +1,348 @@
-const mount = document.getElementById('world3d');
-if (mount) {
-  startWorld().catch(() => {
-    mount.innerHTML = '<div class="world-error">3D scénu sa nepodarilo načítať. Skúste obnoviť stránku.</div>';
-  });
+import * as THREE from 'three';
+import {HDRLoader} from './vendor/HDRLoader.js';
+import {createNature} from './forest-nature.js';
+import {createForestCamera} from './forest-camera.js';
+import {createBuildings,buildingDefinitions} from './forest-buildings.js';
+import {createForestPost} from './forest-post.js';
+
+const mount=document.getElementById('world3d');
+const defaultPanel=mount?{
+  title:document.getElementById('worldTitle').textContent,
+  location:document.getElementById('worldLocation').textContent,
+  count:document.getElementById('worldCount').textContent,
+  description:document.getElementById('worldDescription').textContent,
+  href:document.getElementById('worldAction').getAttribute('href'),
+  cta:document.getElementById('worldAction').textContent.trim().replace(/\s*↗$/,''),
+}:null;
+let disposeWorld=()=>{},generation=0;
+if(mount)boot();
+
+async function boot(){
+  const token=++generation;disposeWorld();mount.classList.remove('is-ready');
+  mount.innerHTML='<div class="world-loading"><span class="world-loading-mark">D</span><strong>Vstúpte do lesa.</strong><span id="worldLoadStatus">Pripravujem svetlo a materiály…</span><span class="world-loading-line"><i></i></span></div>';
+  const select=document.getElementById('worldQuality');if(select)select.disabled=true;
+  try{
+    const cleanup=await startWorld(token);
+    if(token!==generation){cleanup?.();return;}
+    disposeWorld=cleanup;if(select)select.disabled=false;
+  }catch(error){
+    console.error('[DREVOFORM 3D]',error);
+    mount.innerHTML='<div class="world-error"><strong>3D svet sa nepodarilo otvoriť.</strong><span>Obnovte stránku alebo si pozrite projekty nižšie.</span><button type="button" id="worldRetry">Skúsiť znova</button><a href="#projekty">Pozrieť projekty ↗</a></div>';
+    document.getElementById('worldRetry')?.addEventListener('click',boot,{once:true});
+    if(select)select.disabled=false;
+  }
 }
 
-async function startWorld() {
-  const THREE = await import('three');
-  const viewport = document.getElementById('worldViewport');
-  const pins = [...document.querySelectorAll('.map-pin')];
-  const panelTitle = document.getElementById('worldTitle');
-  const panelLocation = document.getElementById('worldLocation');
-  const panelCount = document.getElementById('worldCount');
-  const panelDescription = document.getElementById('worldDescription');
-  const panelAction = document.getElementById('worldAction');
-  if (!viewport || !pins.length) return;
+async function startWorld(token){
+  const viewport=document.getElementById('worldViewport'),pins=[...document.querySelectorAll('.map-pin')];
+  const panel=document.querySelector('.world-panel'),title=document.getElementById('worldTitle');
+  const location=document.getElementById('worldLocation'),count=document.getElementById('worldCount');
+  const description=document.getElementById('worldDescription'),action=document.getElementById('worldAction');
+  const select=document.getElementById('worldQuality'),status=document.getElementById('worldLoadStatus');
+  const listeners=[],resources=new Set(),reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse=matchMedia('(pointer: coarse)').matches;
+  const constrained=coarse||(navigator.deviceMemory||4)<4||(navigator.hardwareConcurrency||4)<4;
+  let requested='auto';try{requested=sessionStorage.getItem('drevoform-quality')||'auto';}catch{}
+  const quality=requested==='auto'?(constrained?'low':'high'):requested,high=quality==='high';
+  if(select)select.value=requested;
+  let dpr=Math.min(devicePixelRatio||1,high?1.65:1.2),effectiveDpr=dpr;
+  const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:constrained?'default':'high-performance',alpha:false});
+  renderer.setPixelRatio(dpr);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+  renderer.info.autoReset=false;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
+  const canvas=renderer.domElement,loading=mount.firstElementChild;
+  canvas.setAttribute('aria-label','Interaktívny les. Potiahnutím otáčate pohľad, kolieskom alebo dvoma prstami približujete. Kliknutím vyberiete stavbu.');
+  mount.append(canvas);
+  const scene=new THREE.Scene();scene.background=new THREE.Color('#c5cebe');scene.fog=new THREE.FogExp2('#c2cdbc',.0042);
+  const camera=new THREE.PerspectiveCamera(44,1,.16,520),globalTime={value:0};
+  const lightDirection=new THREE.Vector3(-45,45,38).normalize();
+  function listen(node,event,handler,options){node.addEventListener(event,handler,options);listeners.push(()=>node.removeEventListener(event,handler,options));}
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#19221a');
-  scene.fog = new THREE.FogExp2('#19221a', 0.018);
-
-  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
-  renderer.domElement.setAttribute('aria-hidden', 'true');
-  mount.replaceChildren(renderer.domElement);
-
-  const camera = new THREE.OrthographicCamera(-13, 13, 7.5, -7.5, 0.1, 100);
-  const target = new THREE.Vector3(0, 0.25, 0);
-  let theta = 0.58;
-  let phi = 0.8;
-  let zoom = 1;
-  const cameraDistance = 34;
-
-  const hemisphere = new THREE.HemisphereLight('#e8edcf', '#243027', 2.25);
-  scene.add(hemisphere);
-  const sun = new THREE.DirectionalLight('#ffe6b1', 2.7);
-  sun.position.set(-10, 18, 11);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  sun.shadow.camera.left = -18;
-  sun.shadow.camera.right = 18;
-  sun.shadow.camera.top = 16;
-  sun.shadow.camera.bottom = -16;
-  sun.shadow.bias = -0.00035;
-  scene.add(sun);
-  const fill = new THREE.DirectionalLight('#afc6e0', 0.65);
-  fill.position.set(12, 10, -11);
-  scene.add(fill);
-
-  const mat = (color, options = {}) => new THREE.MeshStandardMaterial({color, roughness:0.88, ...options});
-  const groundMat = mat('#536044');
-  const undergrowthMat = mat('#3e5039');
-  const soilMat = mat('#c5ad7f');
-  const trunkMat = mat('#806044');
-  const pineMat = mat('#ffffff');
-  const broadMat = mat('#ffffff');
-  const windowMat = mat('#b8d8d1', {roughness:0.22, metalness:0.12, emissive:'#33564d', emissiveIntensity:0.24});
-  const frameMat = mat('#e1d7bd');
-  const limeMat = mat('#c9ed35', {emissive:'#708c14', emissiveIntensity:0.65});
-  const pathPoints = [
-    [-14,-8],[-11,-6.4],[-9,-4],[-6.8,-3.1],[-4,-3.2],[-1.4,-2.9],
-    [1.4,-1.4],[4.2,-0.8],[6.7,0.5],[9.1,2.6],[12,4.4],[14,7.2]
-  ];
-  const buildings = new Map();
-  const landmarkAnchors = new Map();
-  const interactiveMeshes = [];
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-
-  function terrainHeight(x, z) {
-    return 0.1 * Math.sin(x * 0.39 + z * 0.21) + 0.07 * Math.cos(z * 0.51 - x * 0.19);
+  const paths=[];
+  function addPath(points){
+    const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,0,z)));
+    paths.push(curve.getPoints(90).map(p=>[p.x,p.z]));
   }
-
-  function addBox(group, width, height, depth, material, x, y, z, rotation = 0) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material);
-    mesh.position.set(x, y, z);
-    mesh.rotation.y = rotation;
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    group.add(mesh);
-    return mesh;
+  addPath([[-36.4,-20.8],[-28.6,-16.64],[-23.4,-10.4],[-17.68,-8.06],[-10.4,-8.32],[-3.64,-7.54],[3.64,-3.64],[10.92,-2.08],[17.42,1.3],[23.66,6.76],[31.2,11.44],[45,23]]);
+  addPath([[-24,-10.4],[-23,-8],[-20.8,-4.68]]);
+  addPath([[-10.4,-8.32],[-8.7,-9],[-7.02,-12.48]]);
+  addPath([[10.92,-2.08],[11.2,-5],[11.05,-8.32]]);
+  addPath([[23,6.5],[20,8.2],[16.12,8.58]]);
+  addPath([[-17.68,-8.06],[-17,0],[-13,11.18]]);
+  function distanceToSegment(x,z,a,b){
+    const dx=b[0]-a[0],dz=b[1]-a[1],length=dx*dx+dz*dz||1;
+    const t=THREE.MathUtils.clamp(((x-a[0])*dx+(z-a[1])*dz)/length,0,1);
+    return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t);
   }
-
-  function addGround() {
-    const outer = new THREE.Mesh(new THREE.PlaneGeometry(180, 180), undergrowthMat);
-    outer.rotation.x = -Math.PI / 2;
-    outer.position.y = -0.55;
-    outer.receiveShadow = true;
-    scene.add(outer);
-
-    const geometry = new THREE.PlaneGeometry(30, 22, 48, 36);
-    const positions = geometry.attributes.position;
-    for (let i = 0; i < positions.count; i++) {
-      const x = positions.getX(i);
-      const z = -positions.getY(i);
-      positions.setZ(i, terrainHeight(x, z));
+  function pathDistance(x,z){
+    if(x< -42||x>50||z< -26||z>28)return Infinity;
+    let d=Infinity;for(const path of paths)for(let i=1;i<path.length;i++)d=Math.min(d,distanceToSegment(x,z,path[i-1],path[i]));return d;
+  }
+  const zones=buildingDefinitions.map(d=>({x:d.x,z:d.z,radius:d.radius+1.8}));
+  const baseHeight=(x,z)=>1.3+Math.sin(x*.038)*1.35+Math.cos(z*.043)*1.1+
+    Math.sin(x*.074+z*.04)*.42+Math.cos(z*.11-x*.08)*.16+
+    12.8*Math.exp(-((x+62)**2+(z+48)**2)/2300)+9.5*Math.exp(-((x-57)**2+(z-63)**2)/2700);
+  function terrainHeight(x,z){
+    let y=baseHeight(x,z);
+    for(const zone of zones){
+      const distance=Math.hypot(x-zone.x,z-zone.z);
+      const weight=1-THREE.MathUtils.smoothstep(distance,zone.radius*.76,zone.radius+3.2);
+      if(weight>0)y=THREE.MathUtils.lerp(y,baseHeight(zone.x,zone.z),weight);
+    }return y;
+  }
+  if(status)status.textContent='Načítavam povrchy krajiny…';
+  const assetState={loaded:[],fallbacks:[]};let manifest={};
+  try{const response=await fetch(new URL('./assets/manifest.json',import.meta.url));if(response.ok)manifest=await response.json();}catch{}
+  const textureLoader=new THREE.TextureLoader(),anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),high?8:4);
+  async function texture(url,color=true){
+    if(!url)return null;
+    try{
+      const tex=await textureLoader.loadAsync(new URL(url,import.meta.url).href);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=anisotropy;
+      tex.colorSpace=color?THREE.SRGBColorSpace:THREE.NoColorSpace;resources.add(tex);assetState.loaded.push(url);return tex;
+    }catch{assetState.fallbacks.push(url);return null;}
+  }
+  async function maps(name){
+    const item=manifest[name]||{};
+    const [map,normalMap,roughnessMap]=await Promise.all([texture(item.color||item.diffuse||item.albedo),texture(item.normal,false),texture(item.roughness,false)]);
+    return {map,normalMap,roughnessMap};
+  }
+  const [soilMaps,mossMaps,woodMaps,barkMaps,rockMaps]=await Promise.all(['soil','moss','wood','bark','rock'].map(maps));
+  const foliageNames=['firPhoto','fernPhoto','firAlpha','firNormal','fernAlpha','fernNormal'];
+  const foliageMaps=Object.fromEntries(await Promise.all(foliageNames.map(async name=>[name,await texture(manifest.foliage?.[name],name.endsWith('Photo'))])));
+  if(token!==generation){renderer.dispose();return ()=>{};}
+  function fallbackTex(kind){
+    const c=document.createElement('canvas');c.width=c.height=512;const ctx=c.getContext('2d'),image=ctx.createImageData(512,512);
+    for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+      const grain=Math.sin(x*.24+landscapeNoise(x*.008,y*.026)*9)*.5+Math.sin(x*.073+y*.003)*.25;
+      const noise=landscapeNoise(x*.21,y*.21)*.54+landscapeNoise(x*.054,y*.054)*.30+landscapeNoise(x*.013,y*.013)*.16;
+      const v=kind==='wood'?grain*13+(noise-.5)*9:(noise-.5)*36;
+      const base=kind==='wood'?[168,146,113]:kind==='moss'?[76,85,52]:[111,98,74],i=(y*512+x)*4;
+      for(let k=0;k<3;k++)image.data[i+k]=base[k]+v;image.data[i+3]=255;
     }
-    geometry.rotateX(-Math.PI / 2);
-    geometry.computeVertexNormals();
-    const ground = new THREE.Mesh(geometry, groundMat);
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    const hillGeometry = new THREE.SphereGeometry(1, 10, 7);
-    const hillMats = [mat('#344634'), mat('#42533d'), mat('#4a573d')];
-    const hills = [
-      [-16,-8,4.1,1.0,3.2],[-17,4,4.8,1.25,3.6],[15,-8,4.1,1.0,3.1],
-      [17,5,5.2,1.25,3.8],[-9,13,5.0,1.1,3.5],[8,13,4.3,.95,3.2]
-    ];
-    hills.forEach((h, index) => {
-      const mound = new THREE.Mesh(hillGeometry, hillMats[index % hillMats.length]);
-      mound.position.set(h[0], -0.55, h[1]);
-      mound.scale.set(h[2], h[3], h[4]);
-      mound.receiveShadow = true;
-      scene.add(mound);
-    });
+    ctx.putImageData(image,0,0);
+    if(kind!=='wood'){
+      let state=75831;const random=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+      for(let i=0;i<3800;i++){
+        const x=random()*512,y=random()*512,a=random()*Math.PI*2;
+        ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=kind==='moss'?`rgba(51,62,31,${.15+random()*.30})`:`rgba(60,42,24,${.20+random()*.30})`;
+        ctx.beginPath();ctx.ellipse(0,0,.5+random()*1.7,.3+random()*.7,0,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+    }
+    const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+    tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=anisotropy;resources.add(tex);return tex;
   }
-
-  function addClearing(x, z, width, depth) {
-    const clearing = new THREE.Mesh(new THREE.CircleGeometry(1, 40), mat('#687255'));
-    clearing.rotation.x = -Math.PI / 2;
-    clearing.position.set(x, terrainHeight(x,z) + 0.018, z);
-    clearing.scale.set(width, depth, 1);
-    clearing.receiveShadow = true;
-    scene.add(clearing);
+  for(const [name,maps] of [['soil',soilMaps],['moss',mossMaps],['wood',woodMaps]])if(!maps.map){maps.map=fallbackTex(name);assetState.fallbacks.push(name+'-procedural');}
+  barkMaps.map||=woodMaps.map;
+  function standard(color,options={}){const m=new THREE.MeshStandardMaterial({color,roughness:.84,...options});resources.add(m);return m;}
+  const materials={
+    ...foliageMaps,
+    wood:standard('#e8d0ad',{...woodMaps,normalScale:new THREE.Vector2(.48,.48),roughness:.77}),
+    bark:standard('#e4ddd0',{...barkMaps,normalScale:new THREE.Vector2(.9,.9),roughness:.94}),
+    rock:standard('#b9bab2',{...rockMaps,roughness:.94,normalScale:new THREE.Vector2(.55,.55)}),
+    metal:standard('#4e5451',{metalness:.63,roughness:.47}),
+    plaster:standard('#e5dfd3',{normalMap:rockMaps.normalMap,normalScale:new THREE.Vector2(.075,.075),roughness:.93}),
+    glass:new THREE.MeshPhysicalMaterial({color:'#adc4bb',metalness:.15,roughness:.075,envMapIntensity:1.55,transparent:true,opacity:.8,clearcoat:1,clearcoatRoughness:.05,reflectivity:.72}),
+  };resources.add(materials.glass);
+  const sun=new THREE.DirectionalLight('#ffecd4',3.1);sun.position.set(-48,46,38);sun.target.position.set(-3,1,0);
+  sun.castShadow=true;sun.shadow.mapSize.set(high?2048:1024,high?2048:1024);
+  Object.assign(sun.shadow.camera,{left:-43,right:43,top:43,bottom:-43,near:.5,far:155});
+  sun.shadow.bias=-.00008;sun.shadow.normalBias=.028;sun.shadow.radius=3;sun.shadow.autoUpdate=false;scene.add(sun,sun.target);
+  scene.add(new THREE.HemisphereLight('#d5e6ec','#746e59',.45));
+  const pmrem=new THREE.PMREMGenerator(renderer);pmrem.compileEquirectangularShader();
+  const hdrURL=manifest.environment?.file||manifest.environment||manifest.hdri;let environmentTexture;
+  if(typeof hdrURL==='string'){
+    try{
+      environmentTexture=await new HDRLoader().loadAsync(new URL(hdrURL,import.meta.url).href);
+      const image=environmentTexture.image;
+      if(image.data.length!==image.width*image.height*4)throw new Error('Invalid HDR pixel count');
+      let sum=0,samples=0,max=0;
+      for(let i=0;i<image.data.length;i+=16){
+        const value=environmentTexture.type===THREE.HalfFloatType?THREE.DataUtils.fromHalfFloat(image.data[i]):image.data[i];
+        if(!Number.isFinite(value))throw new Error('Non-finite HDR radiance');
+        sum+=value;max=Math.max(max,value);samples++;
+      }
+      if(sum/samples>80)throw new Error('HDR exposure outside the lighting profile');
+      assetState.environment={width:image.width,height:image.height,mean:sum/samples,peak:max,provenance:manifest.environment?.provenance};
+      assetState.loaded.push(hdrURL);
+    }catch{
+      environmentTexture?.dispose();environmentTexture=null;assetState.fallbacks.push(hdrURL);
+    }
   }
-
-  function addPath() {
-    const points = pathPoints.map(([x,z]) => new THREE.Vector3(x, terrainHeight(x,z) + 0.04, z));
-    const curve = new THREE.CatmullRomCurve3(points);
-    const path = new THREE.Mesh(new THREE.TubeGeometry(curve, 110, 0.18, 8, false), soilMat);
-    path.receiveShadow = true;
-    scene.add(path);
-
-    const edgeCurve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(p.x, p.y - 0.035, p.z)));
-    const pathEdge = new THREE.Mesh(new THREE.TubeGeometry(edgeCurve, 110, 0.235, 8, false), mat('#8d7d5f'));
-    pathEdge.receiveShadow = true;
-    scene.add(pathEdge);
+  if(!environmentTexture){
+    const w=256,h=128,data=new Float32Array(w*h*4),sunDirection=lightDirection;
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      const phi=y/(h-1)*Math.PI,theta=x/w*Math.PI*2;
+      const dir=new THREE.Vector3(-Math.sin(phi)*Math.cos(theta),Math.cos(phi),Math.sin(phi)*Math.sin(theta));
+      const horizon=Math.pow(1-Math.abs(dir.y),3),sunDisc=Math.pow(Math.max(0,dir.dot(sunDirection)),700)*24,i=(y*w+x)*4;
+      data[i]=.35+horizon*.47+sunDisc;data[i+1]=.45+horizon*.44+sunDisc*.88;data[i+2]=.51+horizon*.27+sunDisc*.68;data[i+3]=1;
+      if(dir.y<0){data[i]*=.44;data[i+1]*=.51;data[i+2]*=.35;}
+    }
+    environmentTexture=new THREE.DataTexture(data,w,h,THREE.RGBAFormat,THREE.FloatType);
+    environmentTexture.mapping=THREE.EquirectangularReflectionMapping;environmentTexture.needsUpdate=true;
+    assetState.fallbacks.push('generated-radiance-environment');
   }
-
-  function addRoof(group, width, depth, eave, ridge, roofMaterial, overhang = 0.22) {
-    const half = width / 2 + overhang;
-    const halfDepth = depth / 2 + overhang;
-    const makeSlope = (vertices, indices) => {
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  const environmentTarget=pmrem.fromEquirectangular(environmentTexture);scene.environment=environmentTarget.texture;scene.environmentIntensity=.68;
+  environmentTexture.dispose();pmrem.dispose();
+  const skyMaterial=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,toneMapped:true,
+    uniforms:{uTime:globalTime,sunDirection:{value:lightDirection}},
+    vertexShader:['varying vec3 direction;','void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}'].join('\n'),
+    fragmentShader:[
+      '#include <common>',
+      'uniform vec3 sunDirection;uniform float uTime;varying vec3 direction;',
+      'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+      'float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}',
+      'void main(){vec3 d=normalize(direction);float height=max(d.y,0.0);vec3 color=mix(vec3(.66,.73,.64),vec3(.22,.39,.53),pow(height,.48));',
+      ' float glow=pow(max(dot(d,sunDirection),0.0),12.0);color+=vec3(.30,.19,.055)*glow;',
+      ' float disc=smoothstep(.99955,.99978,dot(d,sunDirection));color+=vec3(7.0,5.7,3.5)*disc;',
+      ' vec2 c=d.xz/max(d.y+.18,.12)*3.0+vec2(uTime*.0013,0.0);float cloud=noise(c)*.60+noise(c*2.02)*.26+noise(c*4.03)*.14;',
+      ' float cloudMask=smoothstep(.67,.82,cloud)*smoothstep(.02,.24,d.y);color=mix(color,vec3(.91,.91,.80),cloudMask*.35);',
+      ' gl_FragColor=vec4(color,1.0);','#include <tonemapping_fragment>','#include <colorspace_fragment>','}'
+    ].join('\n')});
+  const skyGeometry=new THREE.SphereGeometry(430,32,16),sky=new THREE.Mesh(skyGeometry,skyMaterial);
+  sky.frustumCulled=false;scene.add(sky);resources.add(skyGeometry);resources.add(skyMaterial);
+  if(status)status.textContent='Osádzam stavby a les…';
+  const groundMaterial=standard('#ffffff',{...soilMaps,roughness:.96,normalScale:new THREE.Vector2(.56,.56)});
+  groundMaterial.onBeforeCompile=shader=>{
+    shader.uniforms.mossMap={value:mossMaps.map};
+    shader.vertexShader='attribute float surfaceMix;attribute float pathMix;varying float vSurfaceMix;varying float vPathMix;\n'+shader.vertexShader;
+    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvSurfaceMix=surfaceMix;vPathMix=pathMix;');
+    shader.fragmentShader='uniform sampler2D mossMap;varying float vSurfaceMix;varying float vPathMix;\n'+shader.fragmentShader;
+    shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',[
+      'vec4 groundColor=texture2D(map,vMapUv);vec4 mossColor=texture2D(mossMap,vMapUv*.133333);',
+      'float groundLuminance=dot(groundColor.rgb,vec3(.2126,.7152,.0722));',
+      'groundColor.rgb=mix(groundColor.rgb,groundLuminance*vec3(1.14,.86,.59),vPathMix*.88);',
+      'diffuseColor*=mix(groundColor,mossColor,clamp(vSurfaceMix,0.0,1.0));'
+    ].join('\n'));
+  };groundMaterial.customProgramCacheKey=()=> 'drevoform-terrain-blend-v2';
+  function landscapeNoise(x,z){
+    const ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;
+    const a=fx*fx*(3-2*fx),b=fz*fz*(3-2*fz);
+    const hash=(p,q)=>{const n=Math.sin(p*127.1+q*311.7)*43758.5453;return n-Math.floor(n);};
+    return THREE.MathUtils.lerp(THREE.MathUtils.lerp(hash(ix,iz),hash(ix+1,iz),a),THREE.MathUtils.lerp(hash(ix,iz+1),hash(ix+1,iz+1),a),b);
+  }
+  function groundTile(size,segments,outer=false){
+    const geometry=new THREE.PlaneGeometry(size,size,segments,segments);geometry.rotateX(-Math.PI/2);
+    const positions=geometry.attributes.position,uv=geometry.attributes.uv;
+    const surface=new Float32Array(positions.count),pathWear=new Float32Array(positions.count),colors=new Float32Array(positions.count*3);
+    for(let i=0;i<positions.count;i++){
+      const x=positions.getX(i),z=positions.getZ(i);positions.setY(i,terrainHeight(x,z));uv.setXY(i,x*.5,z*.5);
+      const p=pathDistance(x,z);let clear=0;
+      for(const zone of zones)clear=Math.max(clear,1-THREE.MathUtils.smoothstep(Math.hypot(x-zone.x,z-zone.z),zone.radius*.72,zone.radius+3));
+      const variation=.08+.35*landscapeNoise(x*.085,z*.085)+.20*landscapeNoise(x*.21+34,z*.21-13);
+      surface[i]=THREE.MathUtils.clamp(variation*(1-.75*clear)*THREE.MathUtils.smoothstep(p,.62,1.65),0,1);
+      pathWear[i]=1-THREE.MathUtils.smoothstep(p,.22,.94+landscapeNoise(x*.38,z*.38)*.24);
+      const shade=.83+.24*landscapeNoise(x*.12-27,z*.12+32);
+      colors.set([shade,shade*.984,shade*.949],i*3);
+    }
+    if(outer){
+      const indices=[];
+      // Both grids meet exactly at 80m. Only the surrounding ring uses coarser
+      // geometry; there is no overlapping terrain or exposed island edge.
+      for(let z=0;z<segments;z++)for(let x=0;x<segments;x++){
+        const cx=-size/2+(x+.5)*size/segments,cz=-size/2+(z+.5)*size/segments;
+        if(Math.abs(cx)<80&&Math.abs(cz)<80)continue;
+        const a=z*(segments+1)+x,b=a+1,c=a+segments+1,d=c+1;
+        indices.push(a,c,b,b,c,d);
+      }
       geometry.setIndex(indices);
-      geometry.computeVertexNormals();
-      const roof = new THREE.Mesh(geometry, roofMaterial);
-      roof.castShadow = true;
-      roof.receiveShadow = true;
-      group.add(roof);
-    };
-    makeSlope([
-      -half,eave,-halfDepth, 0,ridge,-halfDepth, 0,ridge,halfDepth, -half,eave,halfDepth
-    ], [0,1,2,0,2,3]);
-    makeSlope([
-      0,ridge,-halfDepth, half,eave,-halfDepth, half,eave,halfDepth, 0,ridge,halfDepth
-    ], [0,1,2,0,2,3]);
-    addBox(group, 0.13, 0.12, depth + overhang * 1.5, roofMaterial, 0, ridge - 0.02, 0);
-  }
-
-  function addGableFace(group, width, eave, ridge, z, material) {
-    const shape = new THREE.Shape();
-    shape.moveTo(-width / 2, eave);
-    shape.lineTo(width / 2, eave);
-    shape.lineTo(0, ridge);
-    shape.closePath();
-    const face = new THREE.Mesh(new THREE.ShapeGeometry(shape), material);
-    face.position.z = z;
-    face.castShadow = true;
-    group.add(face);
-  }
-
-  function addWindow(group, x, y, z, width = 0.42, height = 0.43, rotation = 0) {
-    addBox(group, width + 0.1, height + 0.1, 0.065, frameMat, x, y, z, rotation);
-    addBox(group, width, height, 0.075, windowMat, x, y, z + (rotation === 0 ? 0.016 : 0), rotation);
-    addBox(group, width + 0.16, 0.055, 0.09, frameMat, x, y + height / 2 + 0.045, z + (rotation === 0 ? 0.035 : 0), rotation);
-    addBox(group, width + 0.16, 0.055, 0.09, frameMat, x, y - height / 2 - 0.045, z + (rotation === 0 ? 0.035 : 0), rotation);
-  }
-
-  function addGableHouse(definition) {
-    const {id,x,z,width,depth,height,rise,wallColor,roofColor,woodColor,accentColor='#26352e'} = definition;
-    const group = new THREE.Group();
-    group.position.set(x, terrainHeight(x,z), z);
-    group.userData.projectId = id;
-    scene.add(group);
-    addClearing(x, z, width * 0.78, depth * 0.82);
-    const walls = mat(wallColor);
-    const roof = mat(roofColor, {roughness:0.78, side:THREE.DoubleSide});
-    const wood = mat(woodColor);
-    const foundation = mat('#716751');
-    const eave = 0.24 + height;
-    const ridge = eave + rise;
-    addBox(group, width + 0.28, 0.22, depth + 0.28, foundation, 0, 0.11, 0);
-    addBox(group, width, height, depth, walls, 0, 0.22 + height / 2, 0);
-    addGableFace(group, width, eave, ridge, depth / 2 + 0.006, walls);
-    addGableFace(group, width, eave, ridge, -depth / 2 - 0.006, walls);
-    addRoof(group, width, depth, eave, ridge, roof);
-
-    const front = depth / 2 + 0.055;
-    addBox(group, 0.58, 1.03, 0.075, wood, 0, 0.735, front);
-    addBox(group, 0.48, 0.08, 0.11, mat('#d8bd78'), 0, 1.17, front + 0.048);
-    addWindow(group, -width * 0.28, 0.22 + height * 0.56, front, 0.4, 0.43);
-    addWindow(group, width * 0.28, 0.22 + height * 0.56, front, 0.4, 0.43);
-
-    const porchWidth = Math.min(width * 0.72, 2.2);
-    const porchZ = depth / 2 + 0.46;
-    addBox(group, porchWidth, 0.13, 0.92, wood, 0, 0.22, porchZ);
-    [-porchWidth/2 + .12, porchWidth/2 - .12].forEach(px => {
-      addBox(group, 0.09, 1.15, 0.09, wood, px, 0.79, porchZ + 0.27);
-    });
-    addBox(group, porchWidth, 0.08, 0.1, wood, 0, 1.37, porchZ + 0.27);
-    addBox(group, Math.min(0.92, width * 0.42), 0.11, 0.36, foundation, 0, 0.055, depth / 2 + 0.95);
-
-    if (accentColor) {
-      const chimney = addBox(group, 0.26, 0.8, 0.26, mat(accentColor), width * 0.28, ridge - 0.05, -depth * 0.19);
-      chimney.rotation.z = -0.08;
     }
-    const anchorY = ridge + 0.72;
-    addFloatingMarker(group, anchorY);
-    registerBuilding(id, group, {x, z, y:terrainHeight(x,z) + anchorY});
-    return group;
+    geometry.setAttribute('surfaceMix',new THREE.BufferAttribute(surface,1));
+    geometry.setAttribute('pathMix',new THREE.BufferAttribute(pathWear,1));
+    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));geometry.computeVertexNormals();
+    const mesh=new THREE.Mesh(geometry,groundMaterial);mesh.receiveShadow=true;scene.add(mesh);resources.add(geometry);
   }
-
-  function addPavilion(definition) {
-    const {id,x,z,width,depth} = definition;
-    const group = new THREE.Group();
-    group.position.set(x, terrainHeight(x,z), z);
-    scene.add(group);
-    addClearing(x, z, width * 0.9, depth * 0.95);
-    const wood = mat('#9a7049');
-    const darkWood = mat('#674f38');
-    const roof = mat('#39473b', {side:THREE.DoubleSide, roughness:0.82});
-    addBox(group, width + 0.34, 0.18, depth + 0.34, darkWood, 0, 0.1, 0);
-    const columnX = width / 2 - 0.18;
-    const columnZ = depth / 2 - 0.18;
-    for (const sx of [-1,1]) for (const sz of [-1,1]) {
-      addBox(group, 0.16, 2.15, 0.16, wood, sx * columnX, 1.25, sz * columnZ);
-    }
-    addBox(group, width + 0.16, 0.18, 0.18, darkWood, 0, 2.31, -columnZ);
-    addBox(group, width + 0.16, 0.18, 0.18, darkWood, 0, 2.31, columnZ);
-    addBox(group, 0.18, 0.18, depth + 0.14, darkWood, -columnX, 2.31, 0);
-    addBox(group, 0.18, 0.18, depth + 0.14, darkWood, columnX, 2.31, 0);
-    addRoof(group, width + 0.08, depth + 0.08, 2.35, 3.18, roof, 0.35);
-    addGableFace(group, width + 0.08, 2.35, 3.18, depth / 2 + 0.06, mat('#855d3d', {side:THREE.DoubleSide}));
-    addGableFace(group, width + 0.08, 2.35, 3.18, -depth / 2 - 0.06, mat('#855d3d', {side:THREE.DoubleSide}));
-    addBox(group, 1.2, 0.12, 0.42, darkWood, 0, 0.83, 0.03);
-    addBox(group, 1.35, 0.12, 0.14, wood, 0, 0.54, 0.29);
-    addFloatingMarker(group, 3.72);
-    registerBuilding(id, group, {x, z, y:terrainHeight(x,z) + 3.72});
-    return group;
+  groundMaterial.vertexColors=true;
+  groundTile(160,high?320:200);groundTile(640,160,true);
+  const architecture=createBuildings({THREE,scene,materials,terrainHeight});
+  const nature=createNature({THREE,scene,materials,quality,terrainHeight,exclusionZones:zones,pathDistance,seed:20261010,reducedMotion});
+  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let selectedId=null,hoverId=null,disposed=false,lastPointer=null;
+  const controls=createForestCamera({THREE,camera,element:canvas,terrainHeight,buildings:architecture.buildings,quality,reducedMotion,onSelect:pickBuilding,onInteraction:()=>viewport.classList.add('has-interacted')});
+  const post=createForestPost({THREE,renderer,scene,camera,sun,enabled:high});
+  function setAction(text,href){action.href=href;action.replaceChildren(document.createTextNode(text+' '));const arrow=document.createElement('span');arrow.textContent='↗';action.append(arrow);}
+  function selectProject(id,focus=true){
+    const button=pins.find(p=>p.dataset.worldId===id);if(!button)return;selectedId=id;
+    pins.forEach(pin=>{const active=pin===button;pin.classList.toggle('is-active',active);pin.setAttribute('aria-pressed',String(active));});
+    location.textContent=button.dataset.location||'PROJEKT';
+    count.textContent=String(pins.indexOf(button)+1).padStart(2,'0')+' / '+String(pins.length).padStart(2,'0');
+    title.textContent=button.dataset.title||'Projekt';description.textContent=button.dataset.description||'';
+    setAction(button.dataset.cta||'Otvoriť projekt',button.dataset.href||'#projekty');architecture.highlight(id);
+    panel.classList.remove('is-changing');void panel.offsetWidth;panel.classList.add('is-changing');if(focus)controls.focus(id);
   }
-
-  function addStudio(definition) {
-    const {id,x,z,width,depth} = definition;
-    const group = new THREE.Group();
-    group.position.set(x, terrainHeight(x,z), z);
-    scene.add(group);
-    addClearing(x,z,width * 0.8,depth * 0.9);
-    const wall = mat('#c5c2ab');
-    const wood = mat('#79583c');
-    const roof = mat('#303b32');
-    addBox(group, width + .24, .2, depth + .24, mat('#6e6650'), 0, .1, 0);
-    addBox(group, width, 1.65, depth, wall, 0, 1.025, 0);
-    addBox(group, width + .35, .2, depth + .35, roof, 0, 1.95, 0);
-    const front = depth / 2 + .04;
-    addBox(group, 1.35, 1.0, .09, windowMat, .38, 1.05, front);
-    addBox(group, .62, 1.13, .1, wood, -.75, .86, front);
-    for (let i=0;i<6;i++) addBox(group, .045, .88, .07, wood, -.95 + i*.08, 1.12, front + .055);
-    addBox(group, width*.58, .12, .86, wood, .32, .23, depth/2 + .38);
-    addFloatingMarker(group, 2.75);
-    registerBuilding(id, group, {x,z,y:terrainHeight(x,z)+2.75});
-    return group;
+  function reset(){
+    selectedId=hoverId=null;controls.reset();architecture.highlight(null);
+    pins.forEach(pin=>{pin.classList.remove('is-active');pin.setAttribute('aria-pressed','false');});
+    title.textContent=defaultPanel.title;location.textContent=defaultPanel.location;count.textContent=defaultPanel.count;
+    description.textContent=defaultPanel.description;setAction(defaultPanel.cta,defaultPanel.href);
   }
-
-  function addFloatingMarker(group, height) {
-    const marker = new THREE.Group();
-    marker.position.y = height;
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.29,0.035,6,24), limeMat);
-    halo.rotation.x = Math.PI / 2;
-    halo.position.y = 0.1;
-    marker.add(halo);
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.04,0.53,7), limeMat);
-    stem.position.y = -0.19;
-    marker.add(stem);
-    group.add(marker);
+  function hitAt(clientX,clientY){
+    const rect=canvas.getBoundingClientRect();pointer.set((clientX-rect.left)/rect.width*2-1,-(clientY-rect.top)/rect.height*2+1);
+    raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(architecture.interactiveMeshes,false)[0]?.object.userData.projectId||null;
   }
-
-  function registerBuilding(id, group, anchor) {
-    group.userData.projectId = id;
-    group.traverse(object => {
-      if (!object.isMesh) return;
-      object.userData.projectId = id;
-      interactiveMeshes.push(object);
-    });
-    buildings.set(id, group);
-    landmarkAnchors.set(id, new THREE.Vector3(anchor.x, anchor.y, anchor.z));
-  }
-
-  function distanceToSegment(x,z,a,b) {
-    const dx = b[0]-a[0];
-    const dz = b[1]-a[1];
-    const length = dx*dx + dz*dz || 1;
-    const t = THREE.MathUtils.clamp(((x-a[0])*dx+(z-a[1])*dz)/length,0,1);
-    return Math.hypot(x-(a[0]+t*dx), z-(a[1]+t*dz));
-  }
-
-  function createForest() {
-    let seed = 20260925;
-    const random = () => {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      return seed / 4294967296;
-    };
-    const pineTrees = [];
-    const broadTrees = [];
-    const clearZones = [
-      [-8,-1.8,2.25],[-2.7,-4.8,2.25],[4.25,-3.2,2.75],[6.2,3.3,2.25],[-5,4.3,2.5]
-    ];
-    for (let attempt=0; attempt<1400 && pineTrees.length+broadTrees.length<142; attempt++) {
-      const x = random()*29-14.5;
-      const z = random()*21-10.5;
-      if (clearZones.some(([bx,bz,r]) => Math.hypot(x-bx,z-bz)<r)) continue;
-      let onPath = false;
-      for (let i=0;i<pathPoints.length-1;i++) {
-        if (distanceToSegment(x,z,pathPoints[i],pathPoints[i+1])<0.92) { onPath=true; break; }
-      }
-      if (onPath) continue;
-      const item = {x,z,y:terrainHeight(x,z),scale:.72+random()*.72,rotation:random()*Math.PI*2};
-      if (random()<.22) {
-        item.color = random()<.5 ? '#71845b' : '#889363';
-        broadTrees.push(item);
-      } else {
-        item.color = random()<.5 ? '#344b38' : '#40583d';
-        pineTrees.push(item);
-      }
-    }
-
-    const matrix = new THREE.Matrix4();
-    const quaternion = new THREE.Quaternion();
-    const scaleVector = new THREE.Vector3();
-    const makeInstances = (items, geometry, material, placement) => {
-      if (!items.length) return;
-      const mesh = new THREE.InstancedMesh(geometry, material, items.length);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
-      items.forEach((item,index) => {
-        const transform = placement(item);
-        quaternion.setFromAxisAngle(new THREE.Vector3(0,1,0), item.rotation);
-        scaleVector.set(transform.sx,transform.sy,transform.sz);
-        matrix.compose(new THREE.Vector3(transform.x,transform.y,transform.z), quaternion, scaleVector);
-        mesh.setMatrixAt(index,matrix);
-        mesh.setColorAt(index,new THREE.Color(item.color));
-      });
-      mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-      mesh.computeBoundingSphere();
-      scene.add(mesh);
-    };
-
-    const trunkGeometry = new THREE.CylinderGeometry(.075,.13,1,5);
-    const pineSmall = new THREE.ConeGeometry(.39,.92,6);
-    const pineMedium = new THREE.ConeGeometry(.53,1.03,6);
-    const pineLarge = new THREE.ConeGeometry(.68,1.12,6);
-    makeInstances(pineTrees,trunkGeometry,trunkMat,t=>({x:t.x,y:t.y+t.scale*.48,z:t.z,sx:t.scale,sy:t.scale,sz:t.scale}));
-    makeInstances(pineTrees,pineLarge,pineMat,t=>({x:t.x,y:t.y+t.scale*.78,z:t.z,sx:t.scale,sy:t.scale,sz:t.scale}));
-    makeInstances(pineTrees,pineMedium,pineMat,t=>({x:t.x,y:t.y+t.scale*1.24,z:t.z,sx:t.scale*.79,sy:t.scale*.79,sz:t.scale*.79}));
-    makeInstances(pineTrees,pineSmall,pineMat,t=>({x:t.x,y:t.y+t.scale*1.68,z:t.z,sx:t.scale*.59,sy:t.scale*.59,sz:t.scale*.59}));
-
-    const broadTrunk = new THREE.CylinderGeometry(.09,.16,1.2,6);
-    const crownGeometry = new THREE.IcosahedronGeometry(1,0);
-    makeInstances(broadTrees,broadTrunk,trunkMat,t=>({x:t.x,y:t.y+t.scale*.58,z:t.z,sx:t.scale,sy:t.scale,sz:t.scale}));
-    const broadItems = broadTrees.flatMap(t => [
-      {...t,x:t.x-.23*t.scale,y:t.y+1.35*t.scale,sx:.66*t.scale,sy:.75*t.scale,sz:.65*t.scale},
-      {...t,x:t.x+.23*t.scale,y:t.y+1.42*t.scale,sx:.67*t.scale,sy:.78*t.scale,sz:.67*t.scale},
-      {...t,y:t.y+1.7*t.scale,sx:.65*t.scale,sy:.72*t.scale,sz:.65*t.scale}
-    ]);
-    makeInstances(broadItems,crownGeometry,broadMat,t=>({x:t.x,y:t.y,z:t.z,sx:t.sx,sy:t.sy,sz:t.sz}));
-
-    const stones = [];
-    for (let i=0;i<46;i++) {
-      const x = random()*28-14;
-      const z = random()*20-10;
-      const closeToBuilding = clearZones.some(([bx,bz,r])=>Math.hypot(x-bx,z-bz)<r+.4);
-      if (closeToBuilding) continue;
-      stones.push({x,z,y:terrainHeight(x,z),scale:.18+random()*.28,rotation:random()*Math.PI*2,color:random()<.5?'#6c715c':'#82806a'});
-    }
-    makeInstances(stones,new THREE.DodecahedronGeometry(1,0),mat('#ffffff'),t=>({x:t.x,y:t.y+t.scale*.3,z:t.z,sx:t.scale*1.3,sy:t.scale*.65,sz:t.scale}));
-  }
-
-  function buildScene() {
-    addGround();
-    addPath();
-    addPavilion({id:'vlciaren',x:-8,z:-1.8,width:2.7,depth:2.1});
-    addGableHouse({id:'maka',x:-2.7,z:-4.8,width:2.35,depth:1.9,height:1.38,rise:.82,wallColor:'#8c603d',woodColor:'#68472f',roofColor:'#303a36',accentColor:'#44392d'});
-    addGableHouse({id:'family',x:4.25,z:-3.2,width:3.25,depth:2.45,height:1.63,rise:.87,wallColor:'#dedbc9',woodColor:'#8f7651',roofColor:'#374239',accentColor:'#5f5545'});
-    addGableHouse({id:'cabin',x:6.2,z:3.3,width:2.55,depth:2.05,height:1.38,rise:.7,wallColor:'#b07c4f',woodColor:'#704a32',roofColor:'#354439',accentColor:'#524437'});
-    addStudio({id:'studio',x:-5,z:4.3,width:3.1,depth:2.4});
-    createForest();
-  }
-
-  function setCamera() {
-    const sinPhi = Math.sin(phi);
-    camera.position.set(
-      target.x + cameraDistance * sinPhi * Math.sin(theta),
-      target.y + cameraDistance * Math.cos(phi),
-      target.z + cameraDistance * sinPhi * Math.cos(theta)
-    );
-    camera.lookAt(target);
-    camera.zoom = zoom;
-    camera.updateProjectionMatrix();
-  }
-
-  function positionPins() {
-    const rect = renderer.domElement.getBoundingClientRect();
-    pins.forEach(button => {
-      const anchor = landmarkAnchors.get(button.dataset.worldId);
-      if (!anchor) return;
-      const point = anchor.clone().project(camera);
-      const x = (point.x * .5 + .5) * rect.width;
-      const y = (-point.y * .5 + .5) * rect.height;
-      const visible = point.z >= -1 && point.z <= 1 && x >= 4 && x <= rect.width-4 && y >= 4 && y <= rect.height-4;
-      button.hidden = !visible;
-      button.style.left = `${x}px`;
-      button.style.top = `${y}px`;
-    });
-  }
-
-  function render() {
-    setCamera();
-    renderer.render(scene,camera);
-    positionPins();
-  }
-
-  function resize() {
-    const width = Math.max(1,viewport.clientWidth);
-    const height = Math.max(1,viewport.clientHeight);
-    const aspect = width/height;
-    const frustumHeight = 15;
-    camera.left = -frustumHeight*aspect/2;
-    camera.right = frustumHeight*aspect/2;
-    camera.top = frustumHeight/2;
-    camera.bottom = -frustumHeight/2;
-    renderer.setSize(width,height,false);
-    camera.updateProjectionMatrix();
-    render();
-  }
-
-  function selectProject(id) {
-    const button = pins.find(pin=>pin.dataset.worldId===id);
-    if (!button) return;
-    pins.forEach(pin=>{
-      const active = pin === button;
-      pin.classList.toggle('is-active',active);
-      pin.setAttribute('aria-pressed',String(active));
-    });
-    const index = pins.indexOf(button);
-    panelLocation.textContent = button.dataset.location || 'PROJEKT';
-    panelCount.textContent = `${String(index+1).padStart(2,'0')} / ${String(pins.length).padStart(2,'0')}`;
-    panelTitle.textContent = button.dataset.title || 'Projekt';
-    panelDescription.textContent = button.dataset.description || '';
-    panelAction.href = button.dataset.href || '#projekty';
-    panelAction.innerHTML = `${button.dataset.cta || 'Viac informácií'} <span>↗</span>`;
-  }
-
-  function pickBuilding(clientX,clientY) {
-    const rect = renderer.domElement.getBoundingClientRect();
-    pointer.set(((clientX-rect.left)/rect.width)*2-1, -((clientY-rect.top)/rect.height)*2+1);
-    raycaster.setFromCamera(pointer,camera);
-    const hits = raycaster.intersectObjects(interactiveMeshes,false);
-    if (hits.length) selectProject(hits[0].object.userData.projectId);
-  }
-
-  buildScene();
-  pins.forEach(button=>{
-    button.setAttribute('aria-pressed','false');
-    button.addEventListener('click',()=>selectProject(button.dataset.worldId));
+  function pickBuilding(x,y){const id=hitAt(x,y);if(id)selectProject(id);}
+  pins.forEach((pin,i)=>{
+    pin.querySelector('.pin-dot').textContent=String(i+1).padStart(2,'0');pin.setAttribute('aria-pressed','false');
+    listen(pin,'click',()=>selectProject(pin.dataset.worldId));
+    listen(pin,'mouseenter',()=>architecture.highlight(pin.dataset.worldId));listen(pin,'mouseleave',()=>architecture.highlight(selectedId));
+    listen(pin,'focus',()=>architecture.highlight(pin.dataset.worldId));listen(pin,'blur',()=>architecture.highlight(selectedId));
   });
-
-  const activePointers = new Map();
-  let drag = null;
-  let pinchDistance = 0;
-  const pointerDistance = () => {
-    const points = [...activePointers.values()];
-    return points.length < 2 ? 0 : Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
+  document.querySelectorAll('[data-map-zoom]').forEach(button=>listen(button,'click',()=>controls.zoomBy(button.dataset.mapZoom==='in'?1:-1)));
+  document.querySelectorAll('[data-map-reset]').forEach(button=>listen(button,'click',reset));
+  if(select)listen(select,'change',()=>{try{sessionStorage.setItem('drevoform-quality',select.value);}catch{}boot();});
+  const fullscreen=document.querySelector('[data-world-fullscreen]');
+  if(fullscreen){fullscreen.hidden=!document.fullscreenEnabled;listen(fullscreen,'click',async()=>{
+    try{if(document.fullscreenElement)await document.exitFullscreen();else await viewport.requestFullscreen();}catch{fullscreen.hidden=true;}
+  });listen(document,'fullscreenchange',()=>{fullscreen.setAttribute('aria-label',document.fullscreenElement?'Zavrieť celú obrazovku':'Otvoriť na celú obrazovku');resize();});}
+  listen(canvas,'pointermove',event=>{if(event.pointerType==='mouse'&&!event.buttons)lastPointer={x:event.clientX,y:event.clientY};});
+  listen(canvas,'pointerleave',()=>{lastPointer=null;hoverId=null;architecture.highlight(selectedId);canvas.classList.remove('can-select');});
+  const screenPoint=new THREE.Vector3();
+  function positionPins(){
+    const rect=canvas.getBoundingClientRect();
+    pins.forEach(button=>{
+      const anchor=architecture.anchors.get(button.dataset.worldId);if(!anchor)return;
+      screenPoint.copy(anchor).project(camera);const x=(screenPoint.x*.5+.5)*rect.width,y=(-screenPoint.y*.5+.5)*rect.height;
+      button.hidden=!(screenPoint.z>=-1&&screenPoint.z<=1&&x>24&&x<rect.width-24&&y>60&&y<rect.height-38);
+      button.style.left=x+'px';button.style.top=y+'px';button.classList.toggle('label-left',x>rect.width*.65);
+      button.classList.toggle('is-hovered',button.dataset.worldId===hoverId);
+    });
+  }
+  function resize(){
+    const w=Math.max(1,viewport.clientWidth),h=Math.max(1,viewport.clientHeight);
+    // Bound the multisampled HDR allocation on Retina / fullscreen monitors.
+    effectiveDpr=Math.min(dpr,Math.sqrt((high?2100000:1100000)/(w*h)));
+    renderer.setPixelRatio(effectiveDpr);
+    renderer.setSize(w,h,false);controls.resize(w,h);const size=renderer.getDrawingBufferSize(new THREE.Vector2());post.resize(size.x,size.y);
+  }
+  const observer=new ResizeObserver(resize);observer.observe(viewport);resize();
+  let running=false,frameId=0,previous=0,elapsed=0,frameCount=0,average=.0167,sampleStart=0,qualityDrops=0,inView=true,lost=false;
+  function frame(now){
+    if(disposed||!running)return;
+    const dt=previous?Math.min((now-previous)/1000,.08):.0167;previous=now;elapsed+=dt;
+    controls.update(dt);globalTime.value=reducedMotion?0:elapsed;nature.update(dt,elapsed,camera);sky.position.copy(camera.position);
+    if(frameCount%5===0)sun.shadow.needsUpdate=true;
+    if(lastPointer&&frameCount%4===0){const id=hitAt(lastPointer.x,lastPointer.y);if(id!==hoverId){hoverId=id;architecture.highlight(id||selectedId);canvas.classList.toggle('can-select',Boolean(id));}}
+    renderer.info.reset();post.render();positionPins();frameCount++;average=average*.97+dt*.03;
+    if(requested==='auto'&&elapsed>7&&elapsed-sampleStart>5){sampleStart=elapsed;if(average>.031&&dpr>.85){dpr=Math.max(.85,dpr*.82);renderer.setPixelRatio(dpr);resize();qualityDrops++;}}
+    frameId=requestAnimationFrame(frame);
+  }
+  function visibility(){
+    const shouldRun=inView&&!document.hidden&&!lost;
+    if(shouldRun&&!running){running=true;previous=0;frameId=requestAnimationFrame(frame);}
+    else if(!shouldRun&&running){running=false;cancelAnimationFrame(frameId);}
+  }
+  const visibleObserver=new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;visibility();},{rootMargin:'80px'});
+  visibleObserver.observe(viewport);listen(document,'visibilitychange',visibility);
+  listen(canvas,'webglcontextlost',event=>{event.preventDefault();lost=true;visibility();viewport.classList.add('context-lost');});
+  listen(canvas,'webglcontextrestored',()=>{lost=false;sun.shadow.needsUpdate=true;viewport.classList.remove('context-lost');visibility();});
+  controls.update(.016);nature.update(.016,0,camera);sky.position.copy(camera.position);
+  await renderer.compileAsync(scene,camera);sun.shadow.needsUpdate=true;post.render();positionPins();
+  loading?.remove();mount.classList.add('is-ready');viewport.dataset.quality=quality;visibility();reset();
+  window.__drevoformWorld={select:selectProject,reset,quality,state:()=>({
+    ready:!disposed,quality,selectedId,hoverId,camera:controls.getState(),frames:frameCount,
+    fps:Math.round(1/average),dpr:effectiveDpr,qualityDrops,assets:assetState,nature:nature.stats,
+    render:{calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,textures:renderer.info.memory.textures,geometries:renderer.info.memory.geometries}})};
+  return ()=>{
+    disposed=true;running=false;cancelAnimationFrame(frameId);listeners.forEach(remove=>remove());
+    observer.disconnect();visibleObserver.disconnect();controls.dispose();nature.dispose();architecture.dispose();post.dispose();
+    environmentTarget.dispose();resources.forEach(resource=>resource.dispose?.());scene.clear();renderer.dispose();canvas.remove();window.__drevoformWorld=undefined;
   };
-  const canvas = renderer.domElement;
-  canvas.addEventListener('pointerdown',event=>{
-    if (event.pointerType==='mouse' && event.button!==0) return;
-    activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
-    canvas.setPointerCapture(event.pointerId);
-    if (activePointers.size===1) drag={id:event.pointerId,x:event.clientX,y:event.clientY,theta,phi,moved:false};
-    if (activePointers.size===2) { drag=null; pinchDistance=pointerDistance(); }
-  });
-  canvas.addEventListener('pointermove',event=>{
-    if (!activePointers.has(event.pointerId)) return;
-    activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
-    if (activePointers.size>=2) {
-      const nextDistance=pointerDistance();
-      if (pinchDistance>0 && nextDistance>0) zoom=THREE.MathUtils.clamp(zoom*nextDistance/pinchDistance,.78,2.2);
-      pinchDistance=nextDistance;
-      render();
-      return;
-    }
-    if (!drag) return;
-    const dx=event.clientX-drag.x;
-    const dy=event.clientY-drag.y;
-    if (Math.abs(dx)+Math.abs(dy)>4) drag.moved=true;
-    theta=drag.theta-dx*.008;
-    phi=THREE.MathUtils.clamp(drag.phi+dy*.007,.42,1.23);
-    render();
-  });
-  const finishPointer=event=>{
-    const wasTap=activePointers.size===1 && drag && !drag.moved;
-    activePointers.delete(event.pointerId);
-    if (wasTap) pickBuilding(event.clientX,event.clientY);
-    drag=null;
-    if (activePointers.size<2) pinchDistance=0;
-    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-  };
-  canvas.addEventListener('pointerup',finishPointer);
-  canvas.addEventListener('pointercancel',finishPointer);
-  canvas.addEventListener('wheel',event=>{
-    event.preventDefault();
-    zoom=THREE.MathUtils.clamp(zoom*(event.deltaY<0?1.12:.89),.78,2.2);
-    render();
-  },{passive:false});
-
-  document.querySelectorAll('[data-map-zoom]').forEach(button=>button.addEventListener('click',()=>{
-    zoom=THREE.MathUtils.clamp(zoom*(button.dataset.mapZoom==='in'?1.2:.83),.78,2.2);
-    render();
-  }));
-  document.querySelector('[data-map-reset]')?.addEventListener('click',()=>{
-    theta=.58;
-    phi=.8;
-    zoom=1;
-    render();
-  });
-  window.addEventListener('resize',resize);
-  resize();
 }

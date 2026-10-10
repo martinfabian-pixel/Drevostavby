@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "soil": {
+    "color": "assets/soil-color.jpg",
+    "normal": "assets/soil-normal.jpg",
+    "roughness": "assets/soil-roughness.jpg",
+    "height": "assets/soil-height.jpg",
+    "tileMeters": 2,
+    "normalProvenance": "Derived from original Poly Haven displacement, not diffuse."
+  },
+  "moss": {
+    "color": "assets/moss-color.jpg",
+    "normal": "assets/moss-normal.jpg",
+    "roughness": "assets/moss-roughness.jpg",
+    "tileMeters": 15,
+    "normalProvenance": "Neutral normal; soil normal used for ground microdetail."
+  },
+  "wood": {
+    "color": "assets/wood-grain-color.jpg",
+    "normal": "assets/wood-grain-normal.jpg",
+    "roughness": "assets/wood-grain-roughness.jpg",
+    "grainDirection": "U",
+    "tileMeters": [
+      2,
+      0.09
+    ],
+    "cropPixels": [
+      0,
+      83,
+      1024,
+      128
+    ]
+  },
+  "bark": {
+    "color": "assets/bark-color.jpg",
+    "normal": "assets/bark-normal.jpg",
+    "roughness": "assets/bark-roughness.jpg",
+    "tileMeters": 2,
+    "normalProvenance": "Derived from original Poly Haven displacement, not diffuse."
+  },
+  "rock": {
+    "color": "assets/rock-color.webp",
+    "normal": "assets/rock-normal.webp",
+    "roughness": "assets/rock-roughness.webp",
+    "tileMeters": 1.8
+  },
+  "environment": {
+    "file": "assets/morning-sky.hdr",
+    "source": "https://polyhaven.com/a/spruit_sunrise",
+    "resolution": [
+      512,
+      256
+    ],
+    "license": "CC0-1.0",
+    "format": "linear RGBE reconstruction",
+    "provenance": "Reconstructed from an SDR photograph with a synthetic sun; not calibrated captured HDR.",
+    "sunDirection": [
+      -45,
+      45,
+      38
+    ],
+    "sunPeakRadiance": 20,
+    "sdrPhoto": "assets/spruit-sunrise-2k.jpg"
+  },
+  "foliage": {
+    "firPhoto": "assets/fir-photo.png",
+    "fernPhoto": "assets/fern-photo.png",
+    "firAlpha": "assets/fir-alpha.png",
+    "firNormal": "assets/fir-normal.jpg",
+    "fernAlpha": "assets/fern-alpha.png",
+    "fernNormal": "assets/fern-normal.jpg",
+    "grassPhoto": "assets/grass-photo.png"
+  },
+  "colorManagement": {
+    "color": "sRGB",
+    "normal": "linear / NoColorSpace",
+    "roughness": "linear / NoColorSpace",
+    "alpha": "linear / NoColorSpace",
+    "environment": "linear HDR"
+  }
+}
