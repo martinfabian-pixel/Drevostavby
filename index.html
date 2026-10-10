@@ -1,27 +1,129 @@
-<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Realizačné výkresy drevostavieb a drevených konštrukcií."><title>Drevoform | Realizačné výkresy drevostavieb</title><link rel="stylesheet" href="site.css?v=world3d-20260925"><link rel="stylesheet" href="forest-world.css?v=cinematic-20261010"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head><body>
-<header class="topbar"><div class="wrap nav"><a class="brand" href="index.html"><span class="brandmark">D</span><span>DREVOFORM</span></a><nav class="navlinks"><a href="#projekty">Projekty</a><a href="#onas">O nás</a><a href="#sluzby">Služby</a><a class="button" href="#kontakt">Kontakt</a></nav></div></header>
-<main><section class="world-hero" id="start" aria-label="Interaktívny 3D svet drevostavieb">
-  <div class="world-map-viewport" id="worldViewport">
-    <div class="world-3d" id="world3d" role="group" aria-label="Trojrozmerný les s vymodelovanými drevostavbami"><div class="world-loading">Pripravujem 3D svet…</div></div>
-    <div class="world-label-layer" id="worldLabelLayer">
-      <button class="map-pin pin-vlciaren" type="button" aria-label="Zobraziť projekt Altánok a mobiliár Vlčiareň" data-world-id="vlciaren" data-title="Altánok a mobiliár Vlčiareň" data-location="Vlčiareň · Malé Karpaty" data-description="Drevený prístrešok s mobiliárom. Pozrite si ukážku axonometrie, pohľadov a výkazu prvkov." data-href="projekt-vlciaren.html" data-cta="Otvoriť projekt"><span class="pin-dot"></span><span class="pin-label"><small>REALIZÁCIA · 01</small><strong>Vlčiareň</strong></span></button>
-      <button class="map-pin pin-maka" type="button" aria-label="Zobraziť projekt Útulňa Jozefa Maka" data-world-id="maka" data-title="Turistická útulňa Jozefa Maka" data-location="Mihalinová · Malé Karpaty" data-description="Dielenská dokumentácia drevenej útulne. Prezrite si rámovanie, rozloženie prvkov a kótované pohľady." data-href="projekt-utulna-maka.html" data-cta="Otvoriť projekt"><span class="pin-dot"></span><span class="pin-label"><small>REALIZÁCIA · 02</small><strong>Útulňa Jozefa Maka</strong></span></button>
-      <button class="map-pin pin-family" type="button" aria-label="Zobraziť model rodinného domu" data-world-id="family" data-title="Rodinná drevostavba" data-location="Typ stavby" data-description="Vymodelovaný rodinný dom predstavuje ďalší typ drevostavby v lesnom areáli. Konkrétne projekty doplníme podľa dodaných podkladov." data-href="#sluzby" data-cta="Pozrieť služby"><span class="pin-dot"></span><span class="pin-label"><small>TYP STAVBY</small><strong>Rodinný dom</strong></span></button>
-      <button class="map-pin pin-home" type="button" aria-label="Zobraziť model rekreačnej chaty" data-world-id="cabin" data-title="Rekreačná drevostavba" data-location="Typ stavby" data-description="Menšia rekreačná chata zasadená medzi stromy. Každá ďalšia realizácia môže dostať vlastné miesto v tomto 3D svete." data-href="#sluzby" data-cta="Pozrieť služby"><span class="pin-dot"></span><span class="pin-label"><small>TYP STAVBY</small><strong>Rekreačná chata</strong></span></button>
-      <button class="map-pin pin-about" type="button" aria-label="Zobraziť informácie o firme" data-world-id="studio" data-title="Naša firma" data-location="Drevoform · pracovný názov" data-description="Ateliér firmy uprostred lesného areálu. Tu predstavíme tím, skúsenosti a spôsob spolupráce." data-href="#onas" data-cta="Spoznajte nás"><span class="pin-dot"></span><span class="pin-label"><small>NAŠA FIRMA</small><strong>O nás</strong></span></button>
-    </div>
-    <div class="world-topline"><span><i></i> 3D LESNÝ SVET</span><span>5 MODELOV <b>·</b> 2 REALIZÁCIE</span></div>
-    <div class="world-controls-wrap"><div class="map-controls" aria-label="Ovládanie 3D sveta"><button type="button" data-map-zoom="in" aria-label="Priblížiť">+</button><button type="button" data-map-zoom="out" aria-label="Oddialiť">−</button><button type="button" data-map-reset aria-label="Vrátiť pohľad na celú krajinu">↺</button><button type="button" data-world-fullscreen aria-label="Otvoriť na celú obrazovku">⛶</button></div></div>
-    <div class="world-help"><span>ŤAHOM OTOČIŤ</span><span>PRIBLÍŽIŤ + / −</span></div><label class="world-quality"><span>KVALITA</span><select id="worldQuality" aria-label="Grafická kvalita 3D sveta"><option value="auto">Auto</option><option value="high">Detailná</option><option value="low">Úsporná</option></select></label>
-  </div>
-  <div class="world-panel" aria-live="polite"><div class="world-panel-main"><div class="world-info-meta"><span id="worldLocation">3D PORTFÓLIO</span><span id="worldCount">00 / 05</span></div><h1 id="worldTitle">Vstúpte do sveta drevostavieb.</h1></div><p id="worldDescription">Domy, altánky a les si môžete prezrieť zblízka. Otočte scénu alebo vyberte stavbu priamo v 3D svete.</p><a class="world-info-link" id="worldAction" href="#projekty">Pozrieť všetky projekty <span>↗</span></a></div>
-</section>
-<section class="projects" id="projekty"><div class="wrap"><div class="section-title"><div><div class="eyebrow">Vybrané projekty</div><h2>Ukážky realizačnej dokumentácie.</h2></div><p>Vyberte projekt a pozrite si jeho výkresy, fotografie a základné informácie.</p></div><div class="project-grid">
-<a class="project-card" href="projekt-vlciaren.html"><div class="card-image drawing"><img src="vlciaren-konstrukcia.png" alt="Axonometria drevenej konštrukcie altánku vo Vlčiarni"></div><div class="card-body"><div class="card-meta"><span>Realizačné výkresy</span><span>Vlčiareň</span></div><h3>Altánok a mobiliár Vlčiareň</h3><p>Axonometria, pohľady a výkaz prvkov drevenej konštrukcie.</p><span class="textlink">Otvoriť projekt ↗</span></div></a>
-<a class="project-card" href="projekt-utulna-maka.html"><div class="card-image"><img src="https://www.hikemates.com/utulne/assets/img/utulne/01/V1.jpg" alt="Útulňa Jozefa Maka v bukovom lese"></div><div class="card-body"><div class="card-meta"><span>Dielenská dokumentácia</span><span>Mihalinová</span></div><h3>Turistická útulňa Jozefa Maka</h3><p>Výkresy dreveného rámovania, stien a konštrukčných prvkov.</p><span class="textlink">Otvoriť projekt ↗</span></div></a>
-</div></div></section>
-<section class="about-section" id="onas"><div class="wrap"><div class="eyebrow">O nás · pracovný názov Drevoform</div><div class="about-layout"><h2>Technický detail.<br>Remeselný prístup.</h2><div><p>Pripravujeme výrobnú a montážnu dokumentáciu drevostavieb. Tu návštevník spozná tím, skúsenosti a spôsob, akým pristupujeme ku každému projektu.</p><a class="textlink" href="#kontakt">Spojte sa s nami ↗</a></div></div></div></section>
-<section class="service-band" id="sluzby"><div class="wrap"><div class="service-inner"><div><div class="eyebrow">Rozsah spolupráce</div><h2>Od návrhu<br>po montáž.</h2><p class="service-lead">Výrobná a montážna dokumentácia prispôsobená konkrétnemu zhotoviteľovi, konštrukčnému systému a podkladom projektu.</p></div><div class="service-list"><article><b>01 / Konštrukčné systémy</b><p>Panelové a stĺpikové konštrukcie, CLT panely, STEKO, zruby, konštrukcie s konopným betónom aj ďalšie systémy podľa typu stavby.</p></article><article><b>02 / Výrobné výkresy</b><p>Výkresy a rozmeranie obvodových panelov, priečok, stropov a prvkov krovu.</p></article><article><b>03 / Detaily a výpisy</b><p>Konštrukčné detaily a prehľady okien, strešnej krytiny, spojovacieho a ďalšieho materiálu.</p></article><article><b>04 / Koordinácia</b><p>Kritické miesta sa riešia v nadväznosti na statiku a stavebnú fyziku vrátane tepelných mostov a difúzie vodných pár.</p></article></div></div><div class="type-note"><strong>Podklady a rozsah</strong><span>Na nacenenie je potrebná architektonická štúdia alebo projekt stavby. Rozsah vrátane realizačnej statiky a podkladov pre geodeta či založenie stavby sa dohodne individuálne podľa projektu.</span></div></div></section>
-<section class="contact" id="kontakt"><div class="wrap contact-row"><div><h2>Máte projekt drevostavby?</h2><p>Pošlite architektonickú štúdiu alebo projekt. Rozsah dokumentácie a cenu dohodneme podľa konkrétnej stavby.</p></div><a class="button" href="mailto:doplňte@email.sk">Napísať správu ↗</a></div></section></main><footer><div class="wrap foot"><span>© 2026 Drevoform · Výrobná a montážna dokumentácia</span><span>Vaše meno · Mesto · Telefón</span></div></footer><script type="module" src="forest-map.js?v=cinematic-20261010"></script></body></html>
-
-
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DREVOFORM — projektovanie a dielenská dokumentácia, odvetrané fasády, drevené terasy a materiály. Od konceptu po posledný detail.">
+  <meta name="theme-color" content="#171a1c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='5' fill='%23171a1c'/%3E%3Cg fill='%23cfb08d'%3E%3Cpath d='M15 25h7v25h-7zM28 14h7v36h-7zM41 20h7v30h-7z'/%3E%3C/g%3E%3C/svg%3E">
+  <title>DREVOFORM — Architecture Unbuilt</title>
+  <link rel="stylesheet" href="site.css?v=world3d-20260925">
+  <link rel="stylesheet" href="unbuilt.css?v=20261010">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body class="unbuilt-home">
+  <a class="unbuilt-skip" href="#sluzby">Prejsť na služby</a>
+  <header class="unbuilt-header">
+    <a class="unbuilt-brand" href="#start" aria-label="DREVOFORM — úvod"><span class="unbuilt-brand-sign" aria-hidden="true"><i></i><i></i><i></i></span>DREVOFORM<span class="unbuilt-brand-note">ARCHITECTURE / ENGINEERING</span></a>
+    <button class="unbuilt-menu-toggle" type="button" data-menu-toggle aria-controls="mainnav" aria-expanded="false">Menu <span aria-hidden="true">+</span></button>
+    <nav class="unbuilt-navigation" id="mainnav" aria-label="Hlavná navigácia">
+      <a href="#sluzby">Služby</a><a href="#projekty">Projekty</a><a href="#onas">O nás</a><a href="interaktivny-svet.html">3D svet</a><a class="unbuilt-nav-contact" href="#kontakt">Kontakt <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main id="start">
+    <section class="unbuilt-story" id="unbuilt-story" aria-label="Architecture Unbuilt — interaktívny príbeh konštrukcie">
+      <div class="unbuilt-stage">
+        <div class="unbuilt-coordinate" aria-hidden="true"><span>DF — 01</span><span>9 × 5 M / STRUCTURAL STUDY</span></div>
+        <div class="unbuilt-stage-grid" aria-hidden="true"></div>
+        <div id="unbuiltCanvas" class="unbuilt-canvas" role="img" aria-label="Interaktívny 3D model dreveného pavilónu. Scrollovanie odhaľuje koncept, nosnú konštrukciu, oddelené vrstvy, detail fasády a dokončený objekt."></div>
+        <div id="unbuiltAnnotations" class="unbuilt-annotations" aria-hidden="true"></div>
+        <div class="unbuilt-narrative">
+          <div class="unbuilt-phase is-active" data-unbuilt-phase="concept">
+            <p class="unbuilt-kicker"><span class="unbuilt-kicker-line"></span>ARCHITECTURE UNBUILT</p>
+            <h1>Od konceptu.<br><span>Po posledný detail.</span></h1>
+            <p class="unbuilt-description">Projektovanie konštrukcií. Dielenská dokumentácia.<br>Odvetrané fasády, drevené terasy a materiály.</p>
+            <a class="unbuilt-text-link" href="#sluzby">Preskúmať našu prácu <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="unbuilt-phase" data-unbuilt-phase="structure" aria-hidden="true">
+            <p class="unbuilt-kicker"><span class="unbuilt-kicker-line"></span>02 / KONŠTRUKCIA</p>
+            <h2>Myšlienka dostáva<br><span>pevný základ.</span></h2>
+            <p class="unbuilt-description">Nosná konštrukcia, presné väzby a logika spojov. Drevené prvky navrhnuté ako jeden systém.</p>
+            <span class="unbuilt-phase-note">PROJEKTOVANIE · TECHNICKÉ RIEŠENIA</span>
+          </div>
+          <div class="unbuilt-phase" data-unbuilt-phase="exploded" aria-hidden="true">
+            <p class="unbuilt-kicker"><span class="unbuilt-kicker-line"></span>03 / SKLADBA</p>
+            <h2>Vrstvy, ktoré<br><span>dávajú zmysel.</span></h2>
+            <p class="unbuilt-description">Konštrukcia, strecha, plášť a odvetraná fasáda. Každý prvok má svoje miesto aj funkciu.</p>
+            <span class="unbuilt-phase-note">DIELENSKÁ A MONTÁŽNA DOKUMENTÁCIA</span>
+          </div>
+          <div class="unbuilt-phase" data-unbuilt-phase="detail" aria-hidden="true">
+            <p class="unbuilt-kicker"><span class="unbuilt-kicker-line"></span>04 / DETAIL</p>
+            <h2>Presnosť<br><span>v každom spoji.</span></h2>
+            <p class="unbuilt-description">Od kotvenia po odvetranú medzeru. Technický detail prepája návrh, materiál a realizáciu.</p>
+            <span class="unbuilt-phase-note">ODVETRANÉ FASÁDY · KONŠTRUKČNÉ DETAILY</span>
+          </div>
+          <div class="unbuilt-phase" data-unbuilt-phase="realisation" aria-hidden="true">
+            <p class="unbuilt-kicker"><span class="unbuilt-kicker-line"></span>05 / REALIZÁCIA</p>
+            <h2>Od výkresu.<br><span>K priestoru.</span></h2>
+            <p class="unbuilt-description">Dokumentácia, drevené terasy a materiály. Premyslený návrh pripravený pre skutočnú stavbu.</p>
+            <a class="unbuilt-text-link" href="#projekty">Pozrieť realizované projekty <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <div class="unbuilt-loader" id="unbuiltLoader" role="status"><span class="unbuilt-loading-line" aria-hidden="true"></span><span data-loader-text>Pripravujeme konštrukčný model</span></div>
+        <div class="unbuilt-fallback" id="unbuiltFallback" hidden>
+          <svg viewBox="0 0 900 620" role="img" aria-labelledby="fallback-title fallback-desc">
+            <title id="fallback-title">Technická axonometria dreveného pavilónu</title><desc id="fallback-desc">Záložná technická kresba ukazuje drevenú nosnú konštrukciu, strešný rošt, fasádne vrstvy a terasu.</desc>
+            <defs><linearGradient id="fallback-timber" x1="0" x2="1"><stop stop-color="#8e6d4f"/><stop offset=".48" stop-color="#d5b695"/><stop offset="1" stop-color="#a58260"/></linearGradient><linearGradient id="fallback-glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a6bfcb" stop-opacity=".22"/><stop offset="1" stop-color="#667e8c" stop-opacity=".05"/></linearGradient><pattern id="fallback-deck" width="17" height="17" patternUnits="userSpaceOnUse" patternTransform="matrix(1 .37 -1 .37 0 0)"><rect width="17" height="17" fill="#a88765"/><path d="M0 0V17 M3 0V17" stroke="#615344" stroke-width=".9"/></pattern></defs>
+            <g fill="none" stroke="#566068" stroke-width="1" opacity=".5"><path d="M56 450 417 308 831 460 M136 493 493 354 826 477 M202 531 542 395 833 500 M225 353 676 524 M310 320 758 493 M400 285 847 459"/><path d="M162 459 162 91M535 598V226M833 443V67" stroke-dasharray="3 8"/></g>
+            <path d="M132 443 439 326 773 454 466 575Z" fill="url(#fallback-deck)" stroke="#e5c7a2" stroke-width="1.1"/>
+            <path d="M132 443V455L466 589V575M466 589 773 467V454" fill="#665447" stroke="#a88765"/>
+            <g fill="url(#fallback-timber)" stroke="#e1c3a1" stroke-width=".6"><path d="M212 430V222L226 228V436Z M346 479V271L360 277V485Z M477 529V321L491 327V535Z M476 331V122L490 128V337Z M610 382V173L624 179V388Z M740 431V222L754 228V437Z"/><path d="M205 215 477 112 758 218 488 323 475 306 741 204 477 102 217 203Z"/><path d="M205 215V230L488 339V323Z M488 323 758 218V235L488 339Z"/></g>
+            <g stroke="#dbba92" stroke-width="5" fill="none"><path d="M217 203 488 306M259 187 531 290M303 170 574 273M346 153 618 256M390 137 661 240M432 120 705 223M476 104 747 207"/></g>
+            <g stroke="#7b6957" stroke-width="1" fill="none"><path d="M217 196 488 299M259 180 531 283M303 163 574 266M346 146 618 249M390 130 661 233M432 113 705 216M476 97 747 200"/></g>
+            <path d="M226 233 345 279V470L226 426Z M360 286 477 332V521L360 477Z M493 339 609 294V477L493 523Z" fill="url(#fallback-glass)" stroke="#9bb2bd" stroke-width="1.2"/>
+            <g fill="#b29a7a" stroke="#715e49" stroke-width=".8"><path d="M628 284 651 275V438L628 447Z M656 273 679 264V427L656 436Z M684 262 707 253V416L684 425Z M712 251 735 242V405L712 414Z"/></g>
+            <g fill="#8c9294" stroke="#d3d4d2" stroke-width=".6"><path d="M207 432 229 440V450L207 442Z M342 482 364 490V500L342 492Z M472 532 494 540V550L472 542Z M735 430 757 438V448L735 440Z"/></g>
+            <g fill="none" stroke="#b8c1c2" stroke-width=".75"><path d="M197 422V215M190 215H204M190 422H204M180 437 454 544M178 431V444M454 538V550M783 220V438M776 220H790M776 438H790"/></g>
+            <g fill="#aab4b8" font-family="Arial, sans-serif" font-size="9" letter-spacing="2"><text x="166" y="330" transform="rotate(-90 166 330)">NOSNÁ KONŠTRUKCIA</text><text x="336" y="556" transform="rotate(21 336 556)">DREVENÁ TERASA</text><text x="798" y="343" transform="rotate(-90 798 343)">ODVETRANÁ FASÁDA</text></g>
+          </svg>
+          <p>Zariadenie nepodporuje 3D zobrazenie. Prezrite si technickú axonometriu a naše projekty.</p>
+        </div>
+        <div class="unbuilt-model-caption"><span class="unbuilt-caption-cross" aria-hidden="true">+</span><span>Konštrukčný pavilón <i>·</i> študijný model</span></div>
+        <div class="unbuilt-bottom-bar">
+          <div class="unbuilt-scroll-hint"><span class="unbuilt-scroll-line" aria-hidden="true"></span><span>Scrollujte a odhaľte konštrukciu</span></div>
+          <div class="unbuilt-chapter-control"><span class="unbuilt-chapter-number"><b id="unbuiltChapter">01 / 05</b></span><div class="unbuilt-progress-track"><span id="unbuiltProgress"></span></div><span class="unbuilt-chapter-caption">FROM CONCEPT TO REALITY</span></div>
+        </div>
+        <ol class="unbuilt-chapters" aria-label="Fázy architektonického príbehu"><li class="is-active" data-unbuilt-chapter="concept">Koncept</li><li data-unbuilt-chapter="structure">Konštrukcia</li><li data-unbuilt-chapter="exploded">Skladba</li><li data-unbuilt-chapter="detail">Detail</li><li data-unbuilt-chapter="realisation">Realizácia</li></ol>
+      </div>
+    </section>
+    <section class="unbuilt-services" id="sluzby" aria-labelledby="services-title">
+      <div class="unbuilt-section-container">
+        <div class="unbuilt-section-heading"><span class="unbuilt-section-index">01 / SLUŽBY</span><div><h2 id="services-title">Premyslené v návrhu.<br><span>Presné v realizácii.</span></h2><p>Technická dokumentácia, konštrukčné riešenia a drevené povrchy. Od prvých podkladov po konkrétne prvky stavby.</p></div></div>
+        <div class="unbuilt-service-rows">
+          <article class="unbuilt-service-row"><span class="unbuilt-row-index">01</span><h3>Projektovanie<br>a dielenská dokumentácia</h3><div><p>Výrobná a montážna dokumentácia prispôsobená konkrétnemu zhotoviteľovi, konštrukčnému systému a podkladom projektu.</p><details class="unbuilt-service-details"><summary>Rozsah dokumentácie <span aria-hidden="true">+</span></summary><div><p><strong>Konštrukčné systémy.</strong> Panelové a stĺpikové konštrukcie, CLT panely, STEKO, zruby, konštrukcie s konopným betónom aj ďalšie systémy podľa typu stavby.</p><p><strong>Výrobné výkresy.</strong> Výkresy a rozmeranie obvodových panelov, priečok, stropov a prvkov krovu.</p><p><strong>Detaily a výpisy.</strong> Konštrukčné detaily a prehľady okien, strešnej krytiny, spojovacieho a ďalšieho materiálu.</p><p><strong>Koordinácia.</strong> Kritické miesta sa riešia v nadväznosti na statiku a stavebnú fyziku vrátane tepelných mostov a difúzie vodných pár.</p></div></details></div></article>
+          <article class="unbuilt-service-row"><span class="unbuilt-row-index">02</span><h3>Odvetrané<br>fasády</h3><div><p>Dokumentácia a technické riešenia odvetraných fasád. Skladba plášťa, podkonštrukcia, kotvenie a nadväznosti jednotlivých vrstiev.</p><span class="unbuilt-service-tag">TECHNICKÉ RIEŠENIE / DETAIL</span></div></article>
+          <article class="unbuilt-service-row"><span class="unbuilt-row-index">03</span><h3>Drevené<br>terasy</h3><div><p>Návrh a realizácia drevených terás. Prepojenie priestoru, nosnej konštrukcie a dreveného povrchu.</p><span class="unbuilt-service-tag">NÁVRH / REALIZÁCIA</span></div></article>
+          <article class="unbuilt-service-row"><span class="unbuilt-row-index">04</span><h3>Drevo<br>a materiály</h3><div><p>Predaj drevených a terasových materiálov. Konkrétny materiál a rozsah dodávky dohodneme podľa vášho projektu.</p><span class="unbuilt-service-tag">DREVENÉ A TERASOVÉ MATERIÁLY</span></div></article>
+        </div>
+        <div class="unbuilt-project-note"><span>VÝCHODISKOVÉ PODKLADY</span><p>Na nacenenie je potrebná architektonická štúdia alebo projekt stavby. Rozsah vrátane realizačnej statiky a podkladov pre geodeta či založenie stavby sa dohodne individuálne podľa projektu.</p></div>
+      </div>
+    </section>
+    <section class="unbuilt-projects" id="projekty" aria-labelledby="projects-title">
+      <div class="unbuilt-section-container">
+        <div class="unbuilt-section-heading"><span class="unbuilt-section-index">02 / PROJEKTY</span><div><h2 id="projects-title">Od detailu<br><span>k celku.</span></h2><p>Vybrané ukážky realizačnej a dielenskej dokumentácie. Pozrite si výkresy, fotografie a základné informácie o projektoch.</p></div></div>
+        <div class="unbuilt-project-grid">
+          <a class="unbuilt-project-card" href="projekt-vlciaren.html"><div class="unbuilt-project-image"><img src="vlciaren-konstrukcia.png" alt="Axonometria drevenej konštrukcie altánku vo Vlčiarni" loading="lazy" decoding="async"><span class="unbuilt-project-view">Otvoriť projekt <span aria-hidden="true">↗</span></span><span class="unbuilt-project-number">DF / 01</span></div><div class="unbuilt-project-meta"><span>REALIZAČNÉ VÝKRESY</span><span>VLČIAREŇ</span></div><h3>Altánok a mobiliár<br>Vlčiareň</h3><p>Axonometria, pohľady a výkaz prvkov drevenej konštrukcie.</p></a>
+          <a class="unbuilt-project-card unbuilt-project-card-offset" href="projekt-utulna-maka.html"><div class="unbuilt-project-image"><img src="maka-axonometria.png" alt="Axonometria dreveného rámovania turistickej útulne Jozefa Maka" loading="lazy" decoding="async"><span class="unbuilt-project-view">Otvoriť projekt <span aria-hidden="true">↗</span></span><span class="unbuilt-project-number">DF / 02</span></div><div class="unbuilt-project-meta"><span>DIELENSKÁ DOKUMENTÁCIA</span><span>MIHALINOVÁ</span></div><h3>Turistická útulňa<br>Jozefa Maka</h3><p>Výkresy dreveného rámovania, stien a konštrukčných prvkov.</p></a>
+        </div>
+      </div>
+    </section>
+    <section class="unbuilt-world-link" id="svet" aria-labelledby="world-title"><div class="unbuilt-section-container"><span class="unbuilt-section-index">ĎALŠIA PERSPEKTÍVA / 3D</span><div class="unbuilt-world-link-grid"><h2 id="world-title">Vstúpte<br>do <em>priestoru.</em></h2><div><p>Preskúmajte drevostavby v interaktívnom lesnom svete. Otáčajte kameru, približujte sa a otvárajte jednotlivé projekty.</p><a class="unbuilt-world-action" href="interaktivny-svet.html">Otvoriť interaktívny 3D svet <span aria-hidden="true">↗</span></a></div></div><div class="unbuilt-world-footnote"><span>5 MODELOV / 2 REALIZÁCIE</span><span>POHYB KAMERY · DETAILY PROJEKTOV</span></div></div></section>
+    <section class="unbuilt-about" id="onas" aria-labelledby="about-title"><div class="unbuilt-section-container"><div class="unbuilt-section-heading"><span class="unbuilt-section-index">03 / PRÍSTUP</span><div><h2 id="about-title">Technický detail.<br><span>Remeselný prístup.</span></h2></div></div><div class="unbuilt-about-body"><p class="unbuilt-about-lead">Pripravujeme výrobnú a montážnu dokumentáciu drevostavieb. Riešime konštrukcie, odvetrané fasády, drevené terasy a materiály.</p><p>Rozsah práce vychádza z konkrétneho projektu. Návrh, výroba a montáž na seba musia nadväzovať — od prvého rozmeru po posledný spoj.</p><a class="unbuilt-light-link" href="#kontakt">Začnime vaším projektom <span aria-hidden="true">↗</span></a></div></div></section>
+    <section class="unbuilt-contact" id="kontakt" aria-labelledby="contact-title"><div class="unbuilt-section-container"><span class="unbuilt-section-index">04 / KONTAKT</span><h2 id="contact-title">Máte projekt?<br><span>Poďme do detailov.</span></h2><div class="unbuilt-contact-bottom"><p>Pripravte architektonickú štúdiu alebo projekt. Rozsah dokumentácie a cenu dohodneme podľa konkrétnej stavby.</p><p class="unbuilt-contact-status" data-contact-pending>Kontaktné údaje doplníme pred zverejnením.</p></div></div></section>
+  </main>
+  <footer class="unbuilt-footer"><div class="unbuilt-section-container"><a class="unbuilt-footer-brand" href="#start">DREVOFORM</a><span>© 2026 / VÝROBNÁ A MONTÁŽNA DOKUMENTÁCIA</span><a href="#start">Späť na začiatok <span aria-hidden="true">↑</span></a></div></footer>
+  <script>
+    (() => {
+      const toggle = document.querySelector('[data-menu-toggle]');
+      const nav = document.getElementById('mainnav');
+      if (!toggle || !nav) return;
+      const close = () => { nav.classList.remove('is-open'); toggle.setAttribute('aria-expanded', 'false'); };
+      toggle.addEventListener('click', () => { const open = !nav.classList.contains('is-open'); nav.classList.toggle('is-open', open); toggle.setAttribute('aria-expanded', String(open)); });
+      nav.addEventListener('click', event => { if (event.target.closest('a')) close(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav.classList.contains('is-open')) { close(); toggle.focus(); } });
+      window.addEventListener('resize', () => { if (window.innerWidth > 700) close(); }, { passive: true });
+    })();
+  </script>
+  <script type="module" src="unbuilt-story.js?v=20261010"></script>
+</body>
+</html>

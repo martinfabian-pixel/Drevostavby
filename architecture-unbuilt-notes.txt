@@ -1,0 +1,62 @@
+DREVOFORM / ARCHITECTURE UNBUILT
+Review prototype — 10 October 2026
+
+Preservation
+The original forest implementation, every asset, project page and vendor file
+remain present. The old homepage is copied byte for byte to interaktivny-svet.html.
+Its brand links back to index.html. The original 59-file snapshot is preserved
+on backup/forest-world-20261010 at commit
+9eb9658ae9eddee23320bb1656750553703812e5.
+The local original outputs directory has not been changed.
+The feature branch is feat/architecture-unbuilt; main is not modified by this PR.
+
+Architecture
+index.html + unbuilt.css: new responsive editorial presentation.
+unbuilt-model.js: original metric demonstration pavilion, 9 x 5 m, seven modular
+assemblies, eight roof subassemblies, bevelled member profiles, facade cutaway,
+steel anchors, bolts, glass profiles and continuous L terrace.
+unbuilt-story.js: continuous native scroll timeline, eased camera keyframes,
+construction reveal, layer separation, facade detail and final assembly.
+unbuilt-post.js: desktop depth-based contact occlusion, MSAA and color output.
+Three.js is self-hosted in vendor/ with its existing license. The scroll timeline
+uses native browser APIs, so no GSAP or paid service dependency is needed.
+
+Assets and visual limits
+This pavilion is an original demonstration model, not a reconstruction of either
+portfolio project and not an issued engineering document. It is generated as
+modular mesh geometry at runtime rather than supplied as a third-party GLB.
+There is no suitable existing high-quality pavilion GLB in the source project.
+The existing licensed photographic wood PBR maps are reused locally.
+morning-sky.hdr is the existing reconstructed RGBE environment, not a calibrated
+captured HDR photograph. A procedural studio environment replaces it if missing.
+No new external textures, remote models or paid assets are required.
+The prototype is rendered in WebGL; it is not a static image and does not claim
+Unreal Engine-quality photorealism.
+
+Runtime
+Desktop model: 62 merged meshes, 1,729 components, 122,416 triangles.
+Mobile model: 49,956 triangles with simpler glass and no contact-AO postprocess.
+Adaptive DPR and framebuffer caps limit resolution and memory use.
+Rendering stops after the intro/scroll settle, outside the story and when hidden.
+The forest is on a separate page, so both scenes never render simultaneously.
+Missing textures/environment have safe fallbacks. WebGL failure reveals a labelled
+SVG technical presentation while services and project links remain accessible.
+Reduced motion removes the introduction drift and scroll inertia.
+
+Validation
+Edge headless browser: desktop, touch/mobile emulation, 320 x 568 and 844 x 390.
+Five phases and reverse playback; deterministic camera; mobile touch scrolling;
+mobile menu and project destinations; idle/offscreen pause; no-WebGL and missing
+asset fallback; reduced motion; preserved forest selection, zoom and reset.
+Performance measurements are from Edge on this PC, including mobile emulation;
+they are not measurements from a physical phone.
+The original 59 local files were verified against the backup SHA256 manifest.
+The forest copy and 58 unchanged files were also compared byte for byte.
+
+Preview and release
+This is a static build compatible with GitHub Pages; no bundler or npm install.
+Use an HTTP server for local preview, for example python -m http.server.
+The pinned external preview URL and review instructions are supplied in the PR.
+Merge into main only after the owner approves the design.
+Public contact information must be supplied before release: the previous source
+contained placeholder contact details, so no fictional mail action was added.
